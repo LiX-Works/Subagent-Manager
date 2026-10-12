@@ -47,6 +47,8 @@ If reading quota fails, briefly state the monitoring gap and continue research w
 
 ## Calculation and Ledger
 
+If the interface reports weekly used percentage, convert it to remaining percentage with `remaining = 100 - used` before recording it. Confirm the reset-period ID from the actual account interface; do not invent one from the task date or model output.
+
 Subtract the latest remaining-percentage value from the same-period baseline remaining value to obtain observed consumption for that day. If the baseline was not taken at the start of the day or sampling was missed, the result is only a lower bound. Start a new baseline on a new day. Across a weekly reset, record the attributable portion of the old period and then begin a new period; do not guess missing usage, allow negative consumption, or erase the old segment. The day boundary remains Asia/Shanghai.
 
 [quota-ledger.py](../scripts/quota-ledger.py) saves only trusted snapshots supplied to it and calculates a lower bound. It **does not query the account, call Grok, notify automatically, or interrupt tasks**. The report tier is limited to normal/remind/unknown: observed daily consumption above 30% is remind, with advisory_only=true and auto_pause=false. Do not migrate or clear the existing ledger files, account labels, or storage structure.
