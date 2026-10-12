@@ -1,67 +1,60 @@
-# Grok调用鼓励、额度查询与提醒
+# Encouraging Grok Use, Quota Checks, and Reminders
 
-2026-10-06更新。Grok用于搜索增强，只要预计能帮助当前任务，就**非常鼓励主动调用**；允许有目标的深入连续查询。额度采用单一提醒阈值，不作为任务中断或派发审批条件。
+Updated 2026-10-06. Strongly encourage proactive Grok use for search enhancement whenever it is expected to help the task; goal-directed, sustained queries are allowed. Use one reminder threshold for quota. It is not a task interruption or dispatch approval condition.
 
-经过实际使用，调用频率与额度消耗并没有预想中紧张，因此放宽提醒阈值，更鼓励通过搜索增强提升任务表现。具体阈值与查询频率可按自己的使用情况调整。
+## Invocation Principles
 
-## 调用原则
+Use Grok's strengths in original X posts, threads, important replies, timelines, differing views, and counterexamples. Valuable ordinary web research, timely information, and dispute checking are also appropriate; there is no need to wait for other search channels to fail. Choose scope, model, and reasoning tier for the task. Do not reduce necessary research because the reminder threshold has not yet been reached or has already been reached. Continue targeted searching when an important gap remains; wrap up when new material is mostly repetitive. Do not create work to consume quota.
 
-发挥X原帖、线程、重要回复、时间线、不同观点和反例的优势；有价值的普通网页调研、时效性信息和争议复核也可使用，无须等其他搜索入口失败。按任务需要选择范围、模型和思考强度，不为尚未达到或已经达到的提醒值削减必要研究。存在重要缺口时继续定向追查，新增内容主要重复时收束，不为耗额度制造任务。
+Use only free or subscription-included quota that has been authorized. Do not enable pay-per-use APIs, overage spending, automatic recharge, or account rotation. A quota check may itself use a small amount of subscription quota; zero usage is not a requirement.
 
-只使用已授权的免费或套餐包含额度，不启用按量API、超额消费、自动充值或自动换号。查询本身可以消耗少量套餐额度，不以零消耗为前提。
+## Daily 30%: Reminder Only, No Interruption
 
-## 单日30%：只提醒，不中断
+The accounting basis remains **the portion of the full weekly allowance consumed during a calendar day in Asia/Shanghai**, accumulated across projects. 30% means 30 percentage points of the full weekly allowance consumed in one day; it does not mean weekly cumulative usage is over 30%, or that only 30% remains.
 
-本方案按**Asia/Shanghai自然日消耗的整周总额度比例**统计，跨项目累计。其他时区或提醒偏好可在说明与账本中调整。30%表示一天消耗整周额度的30个百分点；不是周累计已用超过30%，也不是只剩30%。
+- When observed consumption for the day is **strictly greater than 30%**, give one reminder after the current bounded research step wraps up, stating observed usage and actual remaining quota/reset time when trustworthy data is available.
+- After the reminder, continue current research and future dispatches within the already authorized scope. Do not wait for confirmation, forcibly kill the current CLI, or automatically lower the model or reasoning tier.
+- Do not repeat the reminder on the same day just because usage remains above 30%. Add an update only for substantial new consumption, a real quota-state change, or when the user asks.
+- The old 1/7, 1.5/7, and 2/7 tiers and the default of “no new Grok dispatches” are canceled. Exactly 30% does not trigger a reminder for usage “above” the threshold.
 
-- 当日已观察消耗**严格超过30%**，在当前有边界的研究步骤收束后提醒一次，说明观察用量和实际剩余/重置时间（有可信数据时）。
-- 提醒后继续已有授权范围的当前研究和后续派发，不等待确认、不强杀当前CLI、不自动降模型或思考强度。
-- 同日不因连续查询仍高于30%反复提醒；只有明显新增消耗、真实额度状态变化或用户要求时再补充有用信息。
-- 取消旧的1/7、1.5/7、2/7分档及“不再新派Grok”默认。刚好30%尚不触发“超过”提醒。
+If the account is actually exhausted, authentication fails, or a service hard limit prevents a request, handle it as a real failure of the current path. This is an operating condition, separate from the local reminder threshold. Do not switch to paid usage or bypass account limits to keep calling.
 
-账户实际耗尽、认证失败或服务硬限额导致请求无法执行时，按真实故障处理当前路径；这是运行条件，与本地提醒阈值不同。不得为继续调用转为付费或绕过账户限制。
+## Check Cadence: Usually After Five Substantive Research Units
 
-## 查询频率：默认5个有效研究单元
+Use the following adjustable default to reduce interruptions to the main task:
 
-先采用以下可调整默认，以减少对主任务的干扰：
+1. Obtain a trustworthy baseline before the first actual Grok use that day. Reuse an existing baseline if its date, period, and source are reliable; do not reopen the quota page unnecessarily.
+2. Usually query and record quota **after completing five substantive research units**. A unit is a meaningful stretch of research or analysis around a clear question. Merge same-topic searches, follow-up reading, questions, and checks. Do not count small instructions, retries, single-post reads, or tiny calls split only to parallelize as separate units.
+3. For a clearly long round or sustained multi-round deep research, check at a meaningful progress boundary; do not have to wait for five units. Avoid leaving one long task unchecked indefinitely, and do not check after every tool event.
+4. After a substantive batch of research wraps up and Grok will not be used for a while, an end snapshot may be useful. A few very short calls can roll into the next check; not every main-task completion is a mandatory check. Do not query again if quota was checked recently and there has been no new use.
+5. Do not query for non-Grok tasks or during idle time, and do not add scheduled polling. If there was substantial use in another project since the last snapshot, refresh at the next suitable check point. Do not revert to per-task checking when usage exceeds the reminder threshold.
 
-1. 当天首次实际使用Grok前取得可信基线；已有当前日、周期和来源可靠的基线时复用，不重复打开额度界面。
-2. 通常**累计完成5个有效研究单元后查询一次**并记录。一个单元是围绕一个明确问题完成一段有实质内容的检索/分析；同题连续搜索、补读、追问、复核合并计数。零碎指令、重试、读取单帖或为并行而拆的小调用不单独凑数。
-3. 一轮明显较长或持续多轮的深度研究，可在有实质成果的阶段边界检查，不必等5个；避免单次长任务无限不看额度，也不按每个工具事件查询。
-4. 一批有实质内容的研究收束且此后暂不继续使用Grok时，可补一次结束快照。少量极短调用可并入下一次检查，不把每个主任务结束都当成强制查询点；刚查过且没有新使用时不再查。
-5. 非Grok任务、空闲时间不触发查询，不新增定时轮询。已知其他项目在上次快照后有明显使用时，在下一次合适检查点刷新；不因超过提醒值恢复逐任务查询。
+Five is an execution default, not a permanently user-mandated count. Merge more units when tasks are fragmented, and adjust around actual stages for long research. Record the result and sampling gaps accurately.
 
-5个是可调整默认值。任务较碎时合并更多，长研究时按实际阶段调整；查询结果和采样缺口如实记录。
+## Trustworthy Query Paths
 
-## 可信查询入口
+Historical validation (2026-09-27, Grok Build 1.0.40/1.0.41): entering /usage in a signed-in interactive terminal returned Weekly limit and Next reset; it worked in both the same terminal and a new terminal, and the test session showed no model calls. This is a historical validation; check help and the actual response when using the current version.
 
-已有验证记录（2026-09-27，Grok Build 1.0.40/1.0.41）：在已登录交互终端输入/usage可返回Weekly limit与Next reset，同会话重复和新会话均曾成功，测试会话未出现模型调用。这是历史验收，当前版本使用时核对help与实际返回。
+Use the installed grok entry point, optionally through a separately configured and authorized process-level proxy wrapper:
 
-使用已安装并登录的grok入口，例如：
+    grok --no-alt-screen --minimal
 
-```powershell
-grok --no-alt-screen --minimal
-```
+After the interface is ready, enter /usage to read weekly account usage and the next reset time, then enter /quit to exit. If the wrapper command is unavailable, use the original grok command. Settings → Usage in the web interface is an alternative. See the [official usage FAQ](https://docs.x.ai/grok/faq) and [terminal entry point](https://docs.x.ai/build/modes-and-commands).
 
-待界面就绪后输入`/usage`，读取账户周用量和下次重置时间，用`/quit`退出。网页Settings → Usage可作备选。[官方用量说明](https://docs.x.ai/grok/faq)及[终端入口](https://docs.x.ai/build/modes-and-commands)。
+grok usage <SESSION_ID> queries tokens/cost for one session; it is not the remaining weekly account quota. grok -p "/usage" was not validated as an account quota command. Record a natural-language answer as a snapshot only if it clearly corresponds to actual account data and its source can be checked; a model's guess is not a balance.
 
-`grok usage <SESSION_ID>`查询单会话Token/成本，不是账户周剩余；`grok -p "/usage"`没有作为账户额度命令验收。自然语言回答只有明确对应实际账户数据、可以核对来源时才记为快照，模型猜测不算余额。
+If reading quota fails, briefly state the monitoring gap and continue research within the existing authorization. Do not create a new stop or approval gate because there is no snapshot; handle a failure only if the actual service rejects a request. Integer percentages may be rounded, so do not present interface values as exact decimals.
 
-额度读取失败时，简短说明监控缺口并继续现有授权内的研究，不因缺少快照设置新的停工或批准关卡；实际服务已经拒绝请求时再处理该故障。整数百分比可能舍入，不把界面数据解释成精确小数。
+## Calculation and Ledger
 
-## 计算与账本
+Subtract the latest remaining-percentage value from the same-period baseline remaining value to obtain observed consumption for that day. If the baseline was not taken at the start of the day or sampling was missed, the result is only a lower bound. Start a new baseline on a new day. Across a weekly reset, record the attributable portion of the old period and then begin a new period; do not guess missing usage, allow negative consumption, or erase the old segment. The day boundary remains Asia/Shanghai.
 
-同一周期当日基线的剩余百分比减最新剩余值，得到已观察消耗。若基线不是日初或中间漏采样，只能算下界。跨日用新基线；跨周重置累计能归属的旧段后另记新段，缺口不猜算，不允许负消耗或把旧段清零。日界线继续使用Asia/Shanghai。
+[quota-ledger.py](../scripts/quota-ledger.py) saves only trusted snapshots supplied to it and calculates a lower bound. It **does not query the account, call Grok, notify automatically, or interrupt tasks**. The report tier is limited to normal/remind/unknown: observed daily consumption above 30% is remind, with advisory_only=true and auto_pause=false. Do not migrate or clear the existing ledger files, account labels, or storage structure.
 
-[quota-ledger.py](../scripts/quota-ledger.py)只保存传入的可信快照并计算下界，**不查询账户、不调用Grok、不自动通知或中断任务**。report的tier仅为normal/remind/unknown：已观察日消耗超过30时为remind，并明确`advisory_only=true`、`auto_pause=false`。旧账本的文件、账户标签和存储结构不迁移、不清空。
+The public script defaults to %LOCALAPPDATA%/subagent-manager/grok-quota/ on Windows, or ~/.local/share/subagent-manager/grok-quota/ when LOCALAPPDATA is absent. If an installation already uses another ledger directory, preserve it by passing --state-dir; do not silently start a second ledger or migrate existing data. Record only a non-sensitive account label such as 1, reset period, time, source, and percentage; do not store email, tokens, or billing text:
 
-默认数据目录为`%LOCALAPPDATA%/subagent-manager/grok-quota/`（其他系统使用用户数据目录），可用`--state-dir`指定已有目录。只记录账号标签1等、重置周期、时间、来源和百分比，不存邮箱、令牌或账单原文。`--remaining`填写剩余比例；界面显示已用比例时先计算`100 - 已用比例`。下例从仓库根目录执行，安装到Skill目录后替换相应脚本路径：
+    $skillRoot = 'C:/path/to/skills/subagent-manager'
+    python "$skillRoot/scripts/quota-ledger.py" record --account 1 --remaining 82 --period 'Verified reset-period ID' --source 'user-/usage'
+    python "$skillRoot/scripts/quota-ledger.py" status --account 1
 
-```powershell
-python 'skills/subagent-manager/scripts/quota-ledger.py' record --account 1 --remaining 82 --period '已核实的重置周期标识' --source 'user-/usage'
-python 'skills/subagent-manager/scripts/quota-ledger.py' status --account 1
-```
-
-没有可信快照时标unknown，不用会话Token/美元反推账户比例。部分采样可能低估全天消耗，提示时说明“已观察”范围，不制造虚假精度。
-
-调整提醒阈值时，同时修改本说明和脚本中的`REMINDER_THRESHOLD_PP`；调整查询次数时，修改本说明中的研究单元默认值。日界线改变时同步账本的`TZ`，保留实际账户数据的含义。
+When there is no trustworthy snapshot, label it unknown; do not infer account percentages from session tokens or dollars. Partial sampling may underestimate daily consumption, so say that the reminder reflects “observed” usage and do not imply false precision.

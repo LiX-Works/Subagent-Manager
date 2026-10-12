@@ -1,67 +1,58 @@
-# 本家子代理：模型与任务选择
+# Native subagents: model and context selection
 
-2026-09-30更新：6.1 Sol接替旧6 Sol；Astra退出日常默认分工。主模型始终由使用者选择，本方案以6.1 Sol Ultra常驻为常见背景，不修改主模型或config.toml。
+Updated 2026-10-12. The reference profile uses GPT-6.1 Sol Ultra for the lead. This reference governs delegated work, not the lead model or global configuration. The active tool definition and runtime instructions determine available combinations.
 
-## 按任务选择代理
+## Choose by task
 
-| 子任务 | 默认候选 | 选择依据 |
+| Work | Default candidate | Context and effort |
 |---|---|---|
-| 常规、明确、易验收的读取/提取、代码定位、小改动与检查 | gpt-6-luna，通常Max | 适合承担较多常规工作；需要连续使用Codex现成Skill、MCP、搜索或项目工具时优先Luna |
-| 输入已备齐、工具依赖低的批量阅读、分类、提取与分析 | Gemini 3.8 Flash High，AGY CLI | 与Luna相近优先级；独立CLI不自动共享Codex工具体系，频繁搬运材料的成本高时选Luna |
-| 独立复杂分析、代码实现、资料核验、上下文隔离或实质审查 | gpt-6.1-sol | 按下表选档，难以判断时Xhigh；主代理已在做同一条推理链时不重复委派 |
-| 少量有任务特定依据的困难对照或兜底 | gpt-6-astra | 默认不选；确需时以Max为主、Xhigh按需，不为模型名或Advisor标签制造调用 |
+| Routine, clearly scoped extraction, organization, statistics, code location, small edits, and checks | `gpt-6-luna` | Usually `max`; explicit model/effort and a sufficient `none` handoff when required |
+| Independent complex analysis, implementation, substantive source verification, and review | `gpt-6.1-sol` | Prefer `all` when the lead has the intended model and effort; usual inheritance is Sol Ultra |
+| Selective expert consultation, difficult comparison, independent review, or specialist execution with concrete expected value | `gpt-6-astra` | Primarily `max`, `xhigh` where appropriate; usually `none` plus sufficient background under current override constraints |
 
-子代理的价值包括独立交付、并行提速、隔离嘈杂上下文和审查。即使主代理是6.1 Ultra，这些收益仍可能成立，但同型号子代理或Astra中低档不自动构成能力升级。不设Luna/Gemini的用量份额，也不强制先让较便宜模型失败。
+These are defaults, not quotas or a mandatory escalation sequence. Luna takes Gemini's former routine text role. Gemini is now a video/frame specialist or an explicitly requested alternative; see [google.md](google.md). Do not select Astra solely because a task is important or named Expert Consultation. Suitable difficult assignments can go directly to Sol or Astra without another model failing first.
 
-## 6.1 Sol：思考档位
+## Full-history inheritance
 
-以下为可调整建议；每个组合都须由当前工具和账户支持。
+For a Sol assignment that benefits from the lead's background and matches its configuration, prefer `fork_turns: "all"`. This is intentional inheritance: omit model/effort overrides when the runtime says they are incompatible with a full-history fork. Do not use `all` to silently inherit an unintended model from a differently configured lead.
 
-| 档位 | 建议用途 |
+This replaces the former blanket requirement to explicitly set both fields for every new agent. Explicit arguments remain required for independent selection and external CLIs. Describe requested, inherited, and verified settings accurately.
+
+`all` supplies available history at creation, possibly already compacted. It does not synchronize later messages, guarantee complete encrypted-reasoning transfer, or guarantee a prompt-cache hit. Larger input may be acceptable when background matters; raw token estimates are not a new approval gate or a direct measure of subscription allowance.
+
+## Independently configured calls
+
+Use `none` when independently selecting Luna or Astra requires it, or when separation from the lead's prior judgments benefits the work. It does not isolate files or permissions. Supply necessary original requirements, source material, confirmed decisions, relevant attempts, and unresolved issues; see [delegation.md](delegation.md).
+
+If another interface explicitly allows a positive numeric history limit together with independent model/effort selection, a larger supported limit may be considered for phase-specific history. Check its documented semantics rather than assuming complete coverage from the number of user messages. Small partial-history forks are not routine, and a large number is not automatically `all`. Under an interface exposing only `all` and `none`, use those supported values.
+
+For Sol calls intentionally using explicit effort instead of inheritance:
+
+| Effort | Typical use |
 |---|---|
-| Low | 很明确、容易验收且重视速度的任务；通常仍可交Luna |
-| Medium | 材料齐备、边界清楚，有一定分析难度 |
-| High | 一般复杂代码、多步分析、资料核验 |
-| Xhigh | 困难分析、方向咨询、关键审查；难判时默认选它 |
-| Max | 特别困难的推导、实现或疑难排查；按实测收益选择，不机械升级 |
-| Ultra | 保留可选，子代理默认不选；不能把它作为确定比Max更强或更主动委派的依据 |
+| `low` | Clear, readily checked work where speed matters; often suitable for Luna |
+| `medium` | Well-supplied, bounded work with some analysis |
+| `high` | Complex coding, multi-step analysis, or source verification |
+| `xhigh` | Difficult analysis, consultation, or substantive review |
+| `max` | Especially difficult reasoning, implementation, or diagnosis |
+| `ultra` | Allowed when supported and appropriate, including intentional inheritance from the usual Sol Ultra lead |
 
-官方API只列Low至Max；Codex可提供Ultra，不能混为同一套参数或评测。公开说明将Ultra与最高强度推理、主动委派联系起来，但没有给出Ultra相对Max的精确单模型推理预算对照，更不能直接套用为Ultra子代理比Max子代理更主动的保证。
+There is no rule excluding Ultra from Sol defaults. Do not infer that an Ultra child is necessarily more accurate or more willing to delegate than a Max child. Codex labels and API parameters are not automatically interchangeable; exact single-model reasoning budgets have not been compared here.
 
-如果需要子代理组织下一层工作，明确交代这项职责，并依据实际工具、权限、并发限制和收益判断；Max也可在明确要求下委派，Ultra不是必要条件。通常由主代理统一协调一级子代理，有明确收益时再嵌套。每一层都必须在实际调用参数中同时指定model和reasoning_effort，不能借嵌套省略参数或继承主代理档位。
+## Astra policy remains unchanged
 
-## Astra：少量高档对照或兜底
+Expert Consultation, Independent Review, and Task Execution are responsibilities, not special runtime modes. When Astra is selected for any of them, use primarily `max`, with `xhigh` as an appropriate task-specific alternative. This revision introduces no Ultra default and does not restore lower efforts as routine Astra routes. Other configurations remain possible when explicitly requested or justified by a concrete task.
 
-默认不调用Astra；只有具体任务预期能获得不同模型的有效审查、补齐关键缺口或突破能力瓶颈时才考虑。需要尝试它的能力上限时以Max为主，Xhigh可依任务选用。较低档不在当前默认路线中，不按顾问或执行标签固定分配中低档。其他档位或Ultra仅在使用者另有明确指示或任务特定依据时讨论，不把Ultra当作必然更强。
+Use Astra selectively for useful cross-model scrutiny, closing a consequential gap, or taking over a difficult bounded problem. Agreement between models is not a substitute for evidence. Do not give the expert only the lead's preferred conclusion; consultation without inherited history needs adequate original material.
 
-Advisor/Guide是一种职责，可由主代理或适合的子代理承担，不自动绑定Astra；需要独立审查也不等于必须更换模型。不同模型的第二意见不能替代来源和测试。明显适合Astra的任务可以直接交给它，无须先让6.1失败；“重要”本身不足以自动触发调用。进一步原则见[关键判断点咨询](delegation.md)。
+## Coordination and availability
 
-## 旧模型与其他入口
+Coordinate one level by default. If nesting adds value, specify its purpose, file ownership, and expected delivery, then apply the explicit-selection or deliberate-inheritance rule at every level. Tool access, permissions, and concurrency limits still apply. Do not claim a configuration is verified when metadata is unavailable.
 
-旧6 Sol与5.6默认不分配常规任务，仅在使用者指定、兼容性需要或任务实测显示价值时回退；不可用时说明限制，不静默替换。
+Luna normally uses `max`; do not request an unsupported Ultra level. Older GPT-6 Sol and GPT-5.6 models are compatibility or explicitly requested fallbacks, not routine replacements. Retained lower bounds: `xhigh` for GPT-5.6 Luna and `high` for GPT-5.6 Terra; GPT-5.6 Sol has no hard lower bound, with `high` or above preferred for demanding work. Never silently replace an unavailable requested model.
 
-| 旧模型 | 保留的最低档要求 |
-|---|---|
-| gpt-5.6-luna | Xhigh及以上 |
-| gpt-5.6-terra | High及以上 |
-| gpt-5.6-sol | 无硬下限；建议High及以上 |
+## Evidence boundaries
 
-Luna通常Max，不指定其当前工具不支持的Ultra。Google 3.1 Pro备用，不因Pro名称当作Flash的自动升级；Google和Grok分别见相应参考文件。以上只指导子代理，不自行更换使用者的主模型。
+Model recommendations are configurable workflow defaults, not correctness probabilities or universal rankings. Public benchmarks may inform a choice, but do not establish exact reasoning budgets or an Ultra advantage. Use [current official subagent documentation](https://learn.chatgpt.com/docs/agent-configuration/subagents) and the actual session interface before adopting a new combination.
 
-## 依据与边界（2026-09-29评测快照）
-
-[OpenAI模型页](https://developers.openai.com/api/docs/models/gpt-6.1-sol)将6.1定位为接近Astra；[Artificial Analysis的6.1页面](https://artificialanalysis.ai/models/releases/gpt-6-1-sol)和[Astra页面](https://artificialanalysis.ai/models/releases/gpt-6-astra)给出综合指数（四舍五入，不是正确率）：
-
-| 档位 | 6.1 Sol | Astra |
-|---|---|---|
-| Low | 42 | 46 |
-| Medium | 48 | 50 |
-| High | 50 | 51 |
-| Xhigh | 51 | 52 |
-| Max | 52 | 53 |
-
-[AA编码Agent评测](https://artificialanalysis.ai/articles/gpt-6-1-sol-replaces-gpt-6-sol-after-just-7-days-with-near-astra-intelligence)中6.1 Xhigh为63、Astra Max为62、6.1 Max为60。基准、题组、框架和档位影响结果；不能推导所有任务等价、强度越高必然越好，或把小分差当确定的逐任务优势。这里也没有Ultra的可比单模型成绩。当前策略是可验收的试行分工，不宣称每类任务最优。
-
-本示例以免费或订阅包含额度为费用边界，不以credits核算日常工作。API价格或评测美元成本不能直接换算套餐任务数；按实际使用量、结果、返工与耗时判断收益。只用已获准免费或套餐额度，不因模型升级启用按量API、超额消费或自动充值。公开榜单会更新，保留日期并用自己的代表性任务校验。
-
-2026-09-30本次最小运行验证：Luna Max在明确要求下成功创建下一层Luna Max；显式请求6.1 Sol Ultra的子代理完成只读任务，但没有继续委派。这只证明当时的创建和嵌套能力，不证明Ultra子代理更主动。模型选项与[官方委派说明](https://learn.chatgpt.com/docs/agent-configuration/subagents)仍须结合当前实际环境核对。
+Evaluate results, omissions, rework, latency, and actual included usage. Do not convert API or benchmark dollar costs into subscription task counts, or enable paid usage to make a route available.

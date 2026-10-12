@@ -1,27 +1,96 @@
-# Google：AGY CLI辅助代理
+# Google: Gemini through AGY CLI
 
-默认请求`gemini-3.8-flash-high`与`--effort high`。2026-09-23 AGY1.2.8还列出3.8/3.7/3.6 Flash Low/Medium/High、3.1 Pro Low/High、Claude4.6及GPT-OSS；列表不是调用验收或其他计费路径授权。
+## Role and model
 
-2026-09的小样本试用只覆盖已备齐材料的独立题目，未证明联网、多文件、长任务或跨模型质量，也不能折算订阅余额。先在使用者自己的任务上验收。
+Gemini is a specialist option for video understanding and related key-frame analysis. Use it when the user names Gemini or when interpreting video content has a clear benefit for the current task. It is no longer a default candidate for general reading, classification, extraction, drafting, long-corpus analysis, or exact matching. Route routine, mechanical work to Luna Max; use the native-model rules for more demanding work. Other Gemini assignments require an explicit user request and task-appropriate verification.
 
-本方案将Gemini与Luna设为相近优先级、不同适用情景。关键差异是：独立AGY CLI不会自动接用Codex里**已经配置成体系的**Skill、MCP和搜索工具。Gemini适合输入材料已齐备、可独立交接的批量阅读、分类、提取、初稿与分析；需要在任务中反复串联现有搜索、站内读取、文档和项目工具时通常优先Luna。主代理可先取得材料再交Gemini；若必须频繁代跑工具、搬运上下文，则交接成本可能抵消Gemini的模型能力优势。High是本方案的默认试用档，可按实际结果调整。3.1 Pro按具体价值选，不按Pro名称当升级档。
+Explicitly request `gemini-3.8-flash-high` and `--effort high`. A High setting neither guarantees detailed output nor removes hallucinations. Do not treat a generic CLI option such as `max` or `xhigh` as a supported higher setting for this model without checking the actual model interface. Gemini 3.1 Pro is not an automatic upgrade; select it only for a specific demonstrated benefit or at the user's request.
 
-2026-09-23的AGY帮助提供`mcp add/list/enable/disable`、项目目录与编辑/沙箱选项，因此不能宣称它本身不支持工具。它是独立CLI，不自动继承Codex已配置的整套Skill、MCP和搜索工具。帮助列出功能不是该功能在使用者机器上实测通过；接入并验证相应工具链后可更新分工。
+AGY is an independent CLI environment. It does not automatically share Codex's conversation, Skills, MCP configuration, or search tools. Give it the necessary task context and accessible materials. Its own tool and MCP features must be configured and verified separately; help text alone does not establish runtime capability.
 
-## 入口
+## Entry point and boundaries
 
-- 先确认自己的`agy` CLI可用且已登录；脚本默认从PATH解析`agy`，也可用`-Executable`指定可执行文件。AGY及Gemini账号是可选依赖，不由本Skill安装或登录。
-- 桌面App与CLI不同；登录由使用者在原客户端完成，不读认证文件。过期/额度错误不自动换号或改API key。
-- [invoke-agy.ps1](../scripts/invoke-agy.ps1)统一接收UTF-8提示文件、独立工作目录、输出目录和时限，默认plan+sandbox。
+- Resolve `agy` from `PATH`, or pass its executable path through the wrapper's `-Executable` parameter. Reuse the original client's login; the user completes login in that client. Do not read authentication files, copy credentials, switch accounts automatically, or replace API keys after an expiry or quota error.
+- Desktop and CLI are separate entry points. Do not launch the desktop app or alter its shortcuts merely to run a CLI task.
+- Use only authorized free or included allowance. Do not enable metered APIs, overage, top-ups, or subscriptions. Documented Gemini API features do not authorize switching from the existing AGY entry point to a paid API.
+- [invoke-agy.ps1](../scripts/invoke-agy.ps1) accepts a UTF-8 prompt file, workspace, output directory, model, effort, and timeout. It defaults to `plan` with `--sandbox`, and removes optional API-key environment overrides from its child process. These settings and a "read-only" prompt are not proof of filesystem isolation; check the actual workspace, policy, and visible behavior.
+- Choose an authorized project directory or a dedicated task directory according to the assignment. Specify file responsibility and permitted actions. Do not bypass permissions or grant unrelated external-write authority. If original files cannot be protected adequately, provide isolated copies of the required materials.
+
+From the Skill directory, with an existing prompt file and workspace:
 
 ```powershell
-pwsh -NoProfile -File '<已安装Skill目录>/scripts/invoke-agy.ps1' -PromptFile '<提示文件>' -Workspace '<已有任务目录>' -OutputDirectory '<新结果目录>' -Model 'gemini-3.8-flash-high' -Effort high -DryRun
+pwsh -NoProfile -File './scripts/invoke-agy.ps1' -PromptFile 'C:/work/video-review/prompt.txt' -Workspace 'C:/work/video-review/work' -OutputDirectory 'C:/work/video-review/result' -Model 'gemini-3.8-flash-high' -Effort high -DryRun
 ```
 
-去掉DryRun执行；默认180秒，按任务调整TimeoutSeconds，不统一硬限长任务。需要在用户已授权的任务工作目录（项目或副本）编辑时可选Mode accept-edits，由主代理安排文件责任和冲突处理，不启用权限绕过。输出目录必须为空或未存在，不覆盖旧结果。保存最终回复和可见用量，不保存原始stderr或内部思考，非完整工具审计。
+Remove `-DryRun` to execute an authorized task. The output directory must be new or empty; existing results are not overwritten. The default timeout is 180 seconds; adjust `-TimeoutSeconds` to the task rather than imposing one universal limit. The wrapper limits prompt length to its Windows argument budget, so put substantial evidence in accessible files and use precise paths instead of an oversized inline prompt. Inspect generated code before executing it.
 
-任务传可写范围、验收条件、缺证据时说明；不要求固定JSON字段。代码返回后先检查再执行。真实联网或工具任务需在当前环境独立验证，不把局部无工具试用当全面代理验收。
+The wrapper saves the final reply and visible usage metadata, not raw stderr, internal reasoning, or a complete tool audit. Successful process execution is not acceptance of the answer. For authorized editing, `-Mode accept-edits` is available; the lead agent still coordinates file ownership and checks the changes.
 
-脚本不默认启用代理，继承当前进程的网络环境；需要时显式传`-ProxyUri 'http://127.0.0.1:<端口>'`，或参考仓库的可选Windows代理模块。它不改系统代理、PATH或Python。CLI变化先查help，可按同边界直接用原CLI。
+The public wrapper has no fixed proxy address. When `-ProxyUri` is omitted, it inherits the process's existing network environment; an empty value does not clear an inherited proxy. To select a proxy explicitly, supply a currently authorized HTTP(S) address without embedded credentials. This override applies only to the child process; do not modify the system proxy, `PATH`, Python, or existing routing configuration. A previously successful route is not guaranteed to work now. If service-region access fails, preserve the actual error; an IP site's location is not proof of Google's acceptance. Check the current CLI help when behavior or version changes.
 
-上述模型与命令以当前AGY版本的help和实际账户权限为准。
+## Video inputs and sampling
+
+Keep the input route and its verified controls explicit:
+
+| Route | Available control and evidence boundary |
+|---|---|
+| Existing AGY media tool | A successful AGY 1.3.2 test read an MP4 using `view_file`. The observed call accepted a file path; FPS, time-range, and media-resolution controls were not exposed or verified. Writing "use 2 fps" in the prompt does not prove that rate was applied. Recheck the actual tool schema if it changes. |
+| Direct Gemini API | Official static-video processing supports `processing.fps`, `processing.start_offset`, and `processing.end_offset`. Media resolution is a separate setting. This describes an API capability, not the current AGY tool or authorization to use another billing route. |
+| Locally prepared frames | A local tool can select frames and record source timestamps, frame IDs, dimensions, and the actual extraction settings in a manifest. Gemini then receives images, rather than the original native-video input. This controlled-frame workflow has not yet been validated locally; confirm its image-reading and task accuracy when first used. |
+
+Choose sampling density from the task: scene summaries and brief on-screen transitions need different temporal coverage. FPS controls which moments are observed; resolution affects the detail available within a frame. More frames do not repair unreadable source text, and higher resolution does not recover an unsampled event. Do not enforce a fixed FPS, automatic frame extraction, or one chunk length for every video. When exact controls matter and AGY does not expose them, consider preparing frames locally within the user's authorized scope.
+
+For long videos, segment when it improves coverage or reliability. Preserve source IDs and each clip's global offset. Distinguish clip-relative time, original-video time, model-estimated time, and timestamps recorded during extraction. Check boundaries or use overlap when an event might span clips; do not infer full coverage from a plausible summary. An image-only input does not include the original audio unless audio or a transcript is separately supplied.
+
+Report a setting as applied only when it is established by tool arguments/results or prepared-input records. The model's claim that it sampled at a requested rate is insufficient.
+
+## Evidence handoff
+
+Gemini can return a short answer even at High. Request complete task evidence rather than merely saying "be detailed." Adapt the following prompt to the assignment; do not force a fixed word count, JSON schema, or disclosure of hidden reasoning.
+
+```text
+Produce a detailed, evidence-based handoff for the lead agent.
+
+Goal and questions: <what must be established>
+Inputs: <authorized media paths, source IDs, and any frame manifest>
+Relevant background: <confirmed decisions, constraints, and open issues>
+Scope: <requested ranges, permitted actions, and output language>
+
+Report which files, time ranges, or frames you actually inspected,
+including gaps or inaccessible inputs.
+
+For each relevant observation, provide a source timestamp or frame ID,
+literal visible text or accessible audio content, supporting evidence,
+and uncertainty. Preserve identifiers, numbers, signs, decimals, and
+units exactly as observed. Mark unreadable or unobserved details as
+unknown. Do not fill gaps from expectations or surrounding context.
+
+Separate observations from interpretations. Distinguish clip-relative
+timestamps from original-video timestamps. Mark estimated timing as
+approximate; do not invent precision. If only images were supplied,
+do not claim to have inspected the video's audio or intervening frames.
+
+Return the complete requested timeline, evidence, and findings.
+A short summary alone is insufficient. If unfinished, identify the
+remaining work and what additional material is needed.
+
+Only report sampling settings as applied when verified by the tool
+or prepared inputs. If essential context is missing, read the supplied
+materials first, then report the specific gap to the lead agent.
+```
+
+Request direct, clear instructions and observable results. Do not rely on repeated "think harder" language, a lengthy chain-of-thought demand, or a default temperature of zero as a universal hallucination remedy. Preserve the requested output language, literal source content, and the distinction between evidence and inference.
+
+## Acceptance and known limits
+
+The lead agent checks consequential details against the media or other original evidence, using targeted inspection rather than automatically replaying every video in full. Check timing, literal text, numbers, units, and entity-to-event correspondence separately from the overall interpretation. For dense interfaces, charts, brief states, or precise time alignment, inspect relevant frames and verify source offsets. If a core claim remains unverified, retain uncertainty or obtain a better input instead of presenting it as established.
+
+The October 2026 local test confirmed direct reading of an approximately 22-second MP4 through AGY 1.3.2 using `gemini-3.8-flash-high` and High effort. Its main interpretation was useful, but it omitted a `Working...` interval and misstated some numbers and time anchors. Requested 2 fps was not confirmed. This establishes a working media-read path and task-specific accuracy limits, not complete video-analysis reliability.
+
+Earlier six-question and writing trials remain historical observations: some answers, code checks, and structural suggestions were useful, while proof presentation, overstated rules, and editorial claims needed correction. They did not validate long-corpus exact matching, broad tool use, or superior writing ability. Those general-purpose roles are no longer the default Gemini assignment. User observations about errors motivate this routing choice; do not turn them into an unsupported universal hallucination rate or assume the web app, AGY, and direct API behave identically.
+
+References checked in October 2026:
+
+- [Google: video understanding](https://ai.google.dev/gemini-api/docs/video-understanding) documents static processing, sampling, clipping, and video-input behavior; it does not establish which controls AGY forwards.
+- [Google: Gemini 3 developer guide](https://ai.google.dev/gemini-api/docs/gemini-3#prompting-best-practices) recommends direct instructions and explicit output guidance when more detail is needed.
+- [Google AI Developers Forum: reported timestamp drift](https://discuss.ai.google.dev/t/bug-gemini-3-flash-and-3-1-pro-progressive-timestamp-drift-in-audio-transcription/129501) provides user-reported cases supporting separate timing checks. These are case reports, not a general hallucination-rate estimate or proof of the same bug in the current local model.

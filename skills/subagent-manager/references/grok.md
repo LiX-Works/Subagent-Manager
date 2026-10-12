@@ -1,33 +1,39 @@
-# Grok：主动研究与深入连续查询
+# Grok: proactive research and sustained searches
 
-本方案**搜索增强能帮助任务时非常鼓励主动调用，并可深入连续查询**，不再以尽可能省额度为目标。发挥X原帖、时间线、多方讨论和跨帖追踪优势；有价值的非X时效性研究、复杂网页调研、争议核验或第二模型分析也可使用，不必等其他渠道失败。不因预先担心耗额缩减必要证据、追问或任务执行；额度按[用量提醒与查询](grok-budget.md)合并检查：日消耗超过周总额度30%仅提醒，不中断任务、不限制新派。Grok CLI、登录状态和套餐额度是可选依赖；没有这些条件时主代理仍可用其他已获准渠道完成任务。
+Use the optional Grok CLI when search enhancement can help the task. Original X posts, threads, timelines, competing claims, and cross-post tracking are useful routes; timely web research and dispute checking are also appropriate. Do not wait for other channels to fail before using a suitable route.
 
-深度搜索优先追原帖、线程及有价值的回复/引用，核对作者、日期、版本与说法变化；涉及争议时查反例、不同立场和必要的官方材料。按同主题合并任务，第一轮存在重要缺口时允许继续多轮追查；同一任务可恢复已知会话或传递明确上下文，不跨项目混用。查询以新增信息和任务进展为目标，简单事实可直接查，资料足够且后续主要重复时收束，不为耗额度创造任务。
+Prioritize original sources. Verify authors, dates, versions, and changes in claims; seek counterexamples and relevant official material for disputed topics. Group work around a clear question, follow up when an important gap remains, and wrap up when additional searches mostly repeat existing material. Do not manufacture work to consume quota.
 
-优先当前可用较新稳定强模型，不永久锁版本；通常从high档开始，按任务难度、来源覆盖与正确性考虑xhigh或调整模型，不统一最高档，也不因预想节省而降低必要思考。排队和长时间研究不自动等于失败：根据真实事件、任务范围和进度设置时限，避免只因短暂安静就重启同题，也不无限放任无进展循环。
+Choose an available stable model and supported reasoning tier for the task. Usually start at High; consider Xhigh or another model when difficulty, coverage, or accuracy justifies it. Check the installed CLI's current help and model list rather than assuming a cached model name proves access.
 
-## 试用边界
+## Invocation
 
-- 2026-09在Grok Build 1.0.40/1.0.41上，普通`WebSearch`、单帖`XSearch`以及连续原帖读取都曾返回结果；某次成功不保证多帖深度检索始终稳定，也不证明返回的原帖内容已由第二渠道核对。
-- 一次测试中限定`--tools web_search`后只观察到普通`WebSearch`，未观察到`XSearch`；如任务要研究X，应核对实际工具事件与来源，不把“能搜索网页”当作“已接通X”。`--max-turns`不是搜索调用次数或进程时限。
-- 版本、模型权限、网络和排队状态会变化；历史上的认证、限额和超时错误不代表读者当前环境的状态。对当前配置先做小范围验收，再决定是否交付更大的研究任务。
+Prefer the non-interactive CLI. For long Windows prompts, use a UTF-8 prompt file to avoid shell escaping issues. Run from an authorized task directory; specify scope, allowed actions, and output requirements.
 
-## 调用
-
-优先非交互CLI，ACP当前非必要。以下示例直接调用`grok`，不要求代理；需要代理的Windows用户可按仓库`extras/windows-proxy/`中的可选说明自行配置。Windows长提示词可用prompt-file避免命令行转义。
+Example invocation; verify the model ID and options against the installed CLI:
 
 ```powershell
-grok --model grok-4.7 --reasoning-effort high --prompt-file '<任务提示文件>' --permission-mode plan --no-subagents --max-turns 8 --output-format streaming-json
+grok --model grok-4.7 --reasoning-effort high --prompt-file 'C:/task/x-research.txt' --permission-mode plan --no-subagents --max-turns 8 --output-format streaming-json
 ```
 
-X研究不要套用普通网页测试中的`--tools web_search`：本机该参数组合只记录到`WebSearch`；默认工具集配合明确的X检索提示才实际记录到`XSearch`。在独立、尽量空的任务目录以plan模式运行，提示中限定只读，外层设置进程时限，并检查真实工具事件与原帖内容。普通网页题可以单独限制`--tools web_search`。max-turns不是超时或工具调用次数上限。模型ID仅是当日可用示例，实际调用前核对当前models/help，并显式传模型与思考档位。
+Use a process timeout appropriate to the scope and observed progress. A quiet interval or queue is not automatically a failed request; inspect progress before restarting. Do not let repeated searches continue indefinitely without new evidence. `--max-turns` is not a process timeout or a tool-call limit.
 
-只用已知支持的工具名。未知x_keyword_search等名称历史上被忽略并保留全工具集；web_search也可能暴露工具发现能力，不称绝对隔离，必要时检查实际工具事件。不使用always-approve/bypassPermissions等权限绕过。只传必要公开/授权资料，不跨项目复用会话；新session-id要求UUID。
+For X research, do not copy an ordinary web-search example that restricts the tool set to `--tools web_search`. Historical tests with that restriction recorded ordinary WebSearch, whereas a clear X-search prompt using the default tools recorded XSearch. This is a version-specific observation; verify actual tool events and retrieved posts when material.
 
-返回结论、来源、日期、分歧、未解决问题，Codex核对关键原帖。不启用按量API、额外使用、充值。实际认证/计费方式与已确认状态不符才暂停该渠道，不每轮例行重验账单。成本估算不是实际扣款或余额证明。
+Use only supported tool names. Unknown names may be ignored, and a requested tool list is not proof of isolation. A plan mode and read-only prompt do not establish a filesystem sandbox. Assign file ownership, provide isolated copies when needed, and avoid permission bypasses.
 
-## 额度
+Pass only necessary public or authorized material. Resume a session only for the same project and topic; a new session ID must follow the CLI's supported format. Return findings, original source links, relevant dates, disagreements, and unresolved questions. The lead checks consequential claims against original evidence.
 
-遵守[日预算与查询](grok-budget.md)。2026-09-27验证：在已登录Grok交互终端输入`/usage`，可读取账户每周已用百分比和下次重置时间；1.0.40/1.0.41的测试会话没有模型调用。该路径可由可交互终端操作；网页Settings → Usage可作备选。`grok usage <session>`只返回某个会话的Token/成本，不能当账户周剩余；`grok -p "/usage"`未作为额度命令验收。没有账户数据来源时不把模型自述当余额。
+## Usage and availability
 
-更新时按需读[CLI reference](https://docs.x.ai/build/cli/reference)、[changelog](https://x.ai/build/changelog)、[FAQ](https://docs.x.ai/grok/faq)。上述运行记录仅是日期明确的经验，使用者应在自己的环境做小范围验收。
+Follow [usage monitoring](grok-budget.md). Observed daily consumption strictly above 30 percentage points of the full weekly allowance produces an advisory reminder only. Continue authorized research and future dispatches; a failed quota snapshot alone is a monitoring gap.
+
+Use only authorized free or subscription-included capacity. Do not enable metered APIs, extra usage, recharges, or account rotation. Actual quota exhaustion, authentication failure, or service hard limits make the route unavailable; report the error and choose another authorized path. Do not infer account balance or actual charges from token counts or cost estimates.
+
+Historical Grok Build tests found that `/usage` in an authenticated interactive terminal returned weekly account usage and reset time. Check the current interface and response before relying on that route. `grok usage <SESSION_ID>` reports one session's tokens/cost, not weekly remaining allowance; `grok -p "/usage"` has not been established here as an account quota command.
+
+Successful web search does not prove X search works. A completed process does not prove source coverage or factual correctness, and old failures do not establish present service failure. Keep execution, retrieval, and answer acceptance separate.
+
+## References
+
+Consult the [CLI reference](https://docs.x.ai/build/cli/reference), [changelog](https://x.ai/build/changelog), and [usage FAQ](https://docs.x.ai/grok/faq) when current behavior matters. Optional process-level proxy examples are in [Windows proxy support](../../../extras/windows-proxy/README.md); no fixed proxy, account, or login configuration is bundled.

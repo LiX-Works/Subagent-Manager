@@ -1,6 +1,14 @@
 __pycache__/
 *.pyc
+*.pyo
 *.log
 .env
 .env.*
 !*.example
+auth.json
+cookies.txt
+cookies.json
+Typora_Hook_Log.txt
+outputs/
+results/
+grok-quota/

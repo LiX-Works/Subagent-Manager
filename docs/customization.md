@@ -1,0 +1,11 @@
+# Customize the workflow
+
+The published model profile and usage reminders are configurable defaults. Installing or reading this repository does not change global model settings, account access, or network configuration.
+
+1. **Models and context.** Check the active native-subagent interface. Use intentional `all` inheritance when the lead's configuration fits the task; select independent models and effort explicitly with sufficient `none` context when required. Adapt the reference profile to available models without silently substituting an unavailable request. See [native models](../skills/subagent-manager/references/native-models.md).
+2. **External specialists.** AGY and Grok are optional. Install and log in through their own clients, check current help and model availability, and use only authorized included capacity. External CLIs do not inherit Codex's configured Skills or MCPs. The agent should explain a missing dependency and which stage it affects.
+3. **Usage reminders.** Grok's reference policy measures daily consumption of the full weekly allowance in Asia/Shanghai. Strictly above 30 percentage points means a reminder, not a pause. Five substantive research units per check is an adjustable default. If changing the threshold, synchronize `REMINDER_THRESHOLD_PP` and [the written rules](../skills/subagent-manager/references/grok-budget.md); if changing the day boundary, synchronize `TZ`. Preserve existing ledger data and pass `--state-dir` when an installation uses a custom directory.
+4. **Shared files.** Give concurrent agents distinct file or module responsibilities. The lead observes the same ownership; serialize shared edits and use isolated copies or worktrees when they help. Full-history inheritance and a read-only prompt are not filesystem isolation.
+5. **Networking.** Direct connections need no proxy setup. The [optional Windows helper](../extras/windows-proxy/README.md) accepts an explicit authorized proxy. The public AGY wrapper has no fixed address; omitting `-ProxyUri` preserves the existing process environment.
+
+Start with a clearly scoped task and acceptance criteria. Check the parts that matter to its outcome rather than requiring every optional integration or a second reviewer for every task. Keep credentials, account snapshots, private materials, and raw logs outside the public repository.

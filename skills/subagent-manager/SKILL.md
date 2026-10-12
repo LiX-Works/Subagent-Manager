@@ -1,41 +1,55 @@
 ---
 name: subagent-manager
-description: 规划和调用本家Codex及外部CLI子代理，按任务选择模型与思考强度，管理职责、交接、验收和Grok日预算。用于可独立委派的研究、批量材料、代码任务及子代理规则维护，不为无实际需求的工作制造任务。
+description: Coordinate Codex subagents and external CLI specialists, choose models and context handoffs, assign file ownership, verify deliverables, and monitor Grok usage. Use for delegated research, material processing, coding, video analysis, and delegation-rule maintenance when coordination improves the task.
 ---
 
 # Subagent Manager
 
-Codex负责主任务、委派与最终交付。本工作流假定使用者已允许在任务范围内按需调用子代理；这是授权而非调用要求，仍服从实际环境和更高优先级的限制。结合任务难度、上下文、交接成本、工具条件与预期收益判断是否委派，不为额度或测试创造工作。使用者的新明确指示可更新旧的暂定要求。
+The lead agent owns the user goal, coordination, and final delivery. Delegate when independent work, useful parallelism, specialized tools, or substantive review offers a practical benefit. Existing user authorization permits suitable delegation without asking each time; it does not expand the task or override runtime constraints. Later explicit user instructions supersede earlier tentative preferences.
 
-**每次新建子代理都必须在实际调用参数中显式指定其模型和思考强度。两项均不可省略。** 不依赖主代理模型/强度、全局默认值、Skill文字提示或工具的隐式继承；6.1 Sol Ultra主代理尤其如此。先按任务选定组合，再调用；工具若不支持显式指定该组合，就不要以未指定参数的方式启动，说明限制并由主代理继续或换可用路径。当前原生`spawn_agent`显式覆盖模型/强度时，按工具约束使用`fork_turns: "none"`或有限轮数并传足必要上下文，不能为保留全部历史而放弃显式指定。已有子代理的后续任务应沿用已核实的组合；无法核实则不要宣称按目标组合执行。
+## Language
 
-| 子代理 | 默认用途（可依任务调整） | 按需读取 |
+Use the user's language for user-facing replies and progress updates. Follow the requested language for deliverables. Preserve code, tool names, parameters, paths, and identifiers verbatim. These English instructions do not require English conversation.
+
+## Routing
+
+The reference profile uses GPT-6.1 Sol Ultra for the lead. Adapt model choices to the user's actual environment; do not change the lead model or global configuration to implement this skill.
+
+| Delegate | Suitable work | Default and reference |
 |---|---|---|
-| GPT-6 Luna Max | 与Gemini同属常规任务候选；需要连续使用当前Codex中已配置的Skill、MCP、搜索及项目工具时优先选Luna | [模型规则](references/native-models.md) |
-| GPT-6.1 Sol | 独立复杂任务、上下文隔离或实质审查；Low—Max按需选，复杂任务通常High，难判时Xhigh；Ultra保留可选但默认不选，不假定Ultra子代理更主动委派 | 模型规则 |
-| GPT-6 Astra | 默认不选；仅少量任务特定的对照或兜底，确需时以Max为主、Xhigh按需；不再将Medium／High固定当作更强专家 | [模型规则](references/native-models.md)、[关键判断点咨询](references/delegation.md) |
-| Gemini3.8Flash High，AGY CLI | 与Luna相近优先级；输入已备齐、主要靠模型独立阅读/分析/生成、很少需要现有Codex工具链的任务适合选Gemini | [Google](references/google.md) |
-| Grok CLI | 搜索增强只要能帮助任务就非常鼓励主动调用，可深入连续查询；日消耗超过周总额度30%只提醒、不停止派发；默认合并5个有效研究单元后查额度 | [Grok](references/grok.md)、[用量提醒与查询](references/grok-budget.md) |
+| GPT-6.1 Sol | Independent complex analysis, implementation, substantive verification, and review | Prefer `fork_turns: "all"` when the intended configuration matches the lead; [native models](references/native-models.md) |
+| GPT-6 Luna | Routine extraction, organization, statistics, code location, bounded edits, and readily checked work | Usually `max`, with explicit model/effort and a sufficient `none` handoff; [native models](references/native-models.md) |
+| GPT-6 Astra | Selective expert consultation, independent review, difficult execution, or useful cross-model comparison | Primarily `max`, `xhigh` when appropriate; sufficient `none` context when independent selection requires it; [delegation](references/delegation.md) |
+| Gemini through Antigravity CLI (AGY) | Video and related frame analysis when requested or when visual understanding materially helps a video task | `gemini-3.8-flash-high` with `high`; [video workflow](references/google.md) |
+| Grok CLI | Useful search enhancement, particularly original X posts, threads, competing claims, and timely research | Proactive, focused research is encouraged; [Grok](references/grok.md) and [usage monitoring](references/grok-budget.md) |
 
-AGY和Grok是可选入口；未安装、未登录或当前任务不适用时跳过，不由本Skill自动安装或登录。Grok预算规则仅在使用该入口时生效，模型ID与档位也须以当前环境实际支持为准。
+Luna replaces Gemini's former routine text-processing role. Ordinary drafting, classification, and long-text matching do not independently trigger Gemini. Outside video/frame specialization, use Gemini only when the user explicitly requests it. Expert Consultation is a responsibility, not a special vendor tool mode or automatic model upgrade. Astra is selective, not a routine requirement. Suitable difficult work may go directly to a capable delegate without first making a smaller model fail.
 
-Luna与Gemini按**是否需要现成的整套工具链**和交接成本分工，不固定谁总在前。例如任务要反复衔接Codex中已配置的搜索、MCP及项目Skill，就优先让Luna在当前会话实际提供的工具范围内完成。Gemini是独立AGY CLI，不自动共享Codex的这些入口；它本身有工具和MCP能力，但那是另一套需单独接入、逐项验收的环境。可由主代理先取得材料再交Gemini处理；若必须频繁代跑工具、来回搬运上下文，就优先Luna。原生子代理也只使用实际暴露的能力，不假设一定继承全部入口。明显复杂的独立部分可直接选6.1，不强制先让较便宜模型试错；Astra仅按具体增益少量使用。3.1 Pro备用；旧6 Sol与5.6默认不选，仅在指定、兼容性需要或实测确有价值时回退。
+## Model and context selection
 
-## 委派与验收
+- Deliberate `all` inheritance is an exception to explicit model/effort arguments. Where the interface requires full-history forks to inherit both settings, omit incompatible overrides and state the intended inheritance. Do not avoid `all` solely to reduce raw token counts; cache hits are not guaranteed.
+- For independently configured native agents and external CLIs, explicitly set the model and supported effort in the actual call. Naming a model in `message` is not configuration. Report an unavailable combination rather than silently substituting another one.
+- `none` omits parent conversation history, not system instructions, tools, environment information, or file access. Supply the background needed for the assignment. Important Astra consultation may require substantial phase-specific source material, decisions, prior attempts, and unresolved questions beyond a short summary.
+- If an interface explicitly supports numeric history limits together with independent selection, a sufficiently large supported limit may be considered for relevant phase history. Do not assume a number equals `all`, count it as task executions, or pass unsupported values. Small numeric forks are not the routine default.
+- Available history may already be compacted; later parent messages require explicit updates. Treat encrypted reasoning as system-managed state, not an ordinary handoff document or guaranteed full transfer.
+- Briefly identify the responsibility and requested or inherited settings. Check actual metadata when available and material; distinguish requests from verified settings. Reuse a confirmed configuration for follow-ups.
 
-- 默认采用[关键判断点咨询](references/delegation.md)：先判断独立交付、上下文隔离或审查是否有收益，再决定咨询或执行。主模型由使用者选择；当主代理已是6.1 Sol Ultra时，另派6.1或较低档Astra不自动构成能力升级。Advisor是一种职责，不自动绑定Astra，也不设固定开场/收尾咨询。
-- 委派以有用、可验收的交付为目标，兼顾质量、速度、上下文和协调成本。任务短或需要顺序执行都不是自动排除条件；紧密依赖主任务且交接收益小的步骤通常由主代理完成。这些是判断因素，不是必须逐项满足的固定清单。
-- 根据任务需要选模型；明显复杂的独立部分可直接选6.1。Astra默认不调用，只有预期具体增益才考虑，但不强制先让6.1失败。并行、顺序交接、主代理直接完成都可以，不追求代理数量或固定升级顺序。
-- 通常由主代理统一协调一级子代理；有明确收益时可嵌套。需要下一层委派时明确交代职责，并核对工具/权限/并发条件；每层都显式指定模型和强度。Max可在明确要求下委派；不能仅凭Ultra标签假定子代理会更主动或必定再委派。
-- 简要说明职责及**调用参数实际选定**的模型/思考档。传用户目标、约束、必要原始材料、已知证据与当前假设、可写范围和验收标准；允许专家质疑题设，不只要求认可主代理方案，不机械发送整个项目。调用后若会话记录可见，核对实际组合；仅在提示词中写“请用某模型”不算已指定。
-- 子代理在用户已授权的任务和项目范围内工作；需要编辑时可按分工直接修改相关项目文件，不一律要求副本。主代理安排文件或模块责任，避免未经协调的并发写入；有冲突或隔离需求再使用副本、工作树或顺序执行。材料读取任务通常只读，分派任务不扩大外部操作授权。
-- 外部CLI按任务选独立目录或已授权的项目目录，设置适当时限，不跨项目共享会话。没有稳定入口先小验证，不开权限绕过，不把prompt的只读声明当沙箱。
-- 主代理对最终交付负责，按风险检查来源、测试、结果和限制，无须重复完成强模型的全部推理。保留专家关键结论、依据和条件，避免最后改写失真；分歧用原始证据或针对性检查解决，不能仅凭模型名接受或凭直觉否定。无法核验的核心结论保留不确定性；不强制每次再启动审查代理。
-- 失败可缩任务、补上下文、换模型或接手，不无限重试；严重冲突、信息不足或新增授权需求暂停相关部分询问。
-- 不默认创建用户侧新任务/对话。原生spawn与外部CLI是不同机制；指定组合不可用说明限制，不静默替换或退回主代理模型/档位。
+## Handoff and execution
 
-## 费用和迭代
+- Scale the message to the assignment: goal, current stage and confirmed decisions, necessary inputs, evidence versus assumptions, writable scope, expected result, and completion criteria where relevant. Provide source paths or excerpts rather than making the delegate reconstruct the project. Short self-contained work can use short instructions; there is no fixed word count or compulsory form. Read [delegation](references/delegation.md) for substantive consultation or shared-file work.
+- Allow delegates to question assumptions. If key context is missing, they should read assigned materials first, then tell the lead what is missing. The lead handles ordinary clarification; genuinely new authorization or consequential user choices remain with the user.
+- Assign files or modules before concurrent editing, and have the lead respect the same ownership. Independent outputs can share a project directory. Serialize changes to shared files; use a copy or worktree when isolation materially helps, not for every task. A task name or textual read-only request is not a filesystem sandbox. One live Origin session has one writing executor.
+- Reuse a delegate for useful related follow-ups. State new evidence, changed requirements, and results to preserve. Do not replay completed writes or rebuild artifacts merely because another message arrived. A completed turn and an accepted overall assignment are different.
+- Native agents use capabilities actually exposed in their session. External CLIs have separate contexts and integrations; they do not automatically inherit Codex's Skills, MCPs, search tools, or credentials. Use an identified authorized workspace and suitable runtime limits, without mixing projects or bypassing permissions.
+- The lead checks delivered files, coverage, evidence, and relevant behavior proportionally to the task. A success flag, fluent answer, or stronger model name does not establish correctness. Preserve specialist results and uncertainty without repeating all their work or requiring a second reviewer every time. Resolve real disagreements with sources or focused checks.
+- Inspect uncertain outcomes before retrying. Narrow a task, add context, reuse the agent, or take over as useful. Avoid indefinite retries, duplicate names, and overlapping writes. Prefer an in-place update or complete file replacement over separate deletion and recreation calls.
+- Coordinate one level by default; nesting is allowed when it has a concrete benefit. Apply selection, handoff, ownership, and runtime rules at every level. Ultra is not required for delegation and does not guarantee that a child will delegate.
+- Native spawning and external CLI calls do not require a new user-facing app chat. Create a separate app task only when the user asks.
 
-本方案默认只用已授权免费或套餐包含的额度；未经使用者明确授权，不启用按量API、超额消费、自动充值，不复制认证或自动轮换账号绕过限制。多账号不作无限额度保证。Grok的日常鼓励与深查策略持续有效，按[用量提醒与查询](references/grok-budget.md)执行超过30%仅提醒与低频合并查询；允许直接查询真实额度，不为追求零查询消耗而耽误工作。
+## Usage and maintenance
 
-选哪类代理读哪类说明，不每次全量诊断。使用者允许时，按[经验](references/experience.md)记录观察与边界，迭代可调整的默认策略；不自行改变使用者明确固定的规则。资料检索使用当前环境实际可用的工具，不要求安装另一份Skill。
+Use only authorized free or subscription-included capacity. Do not enable metered APIs, overage, automatic recharge, credential copying, or account rotation to bypass limits. Report missing tools or dependencies with the affected stage and minimum preparation while independent authorized work continues.
+
+Grok research remains encouraged when useful. Observed daily consumption strictly above 30% of the full weekly allowance triggers an advisory reminder, not a pause or approval gate. Query around five substantive research units, adjusted to the actual work. Preserve the existing Asia/Shanghai ledger boundary and storage; see [grok-budget.md](references/grok-budget.md). Do not infer subscription capacity from API prices or raw token totals.
+
+Load only the reference needed for the selected route. Use [experience.md](references/experience.md) for validation boundaries and reusable observations. Record new experience only within an authorized task location, without changing global memory or unrelated Skills. Historical entries are not current policy. When available, use the companion `agent-search-booster` skill for search acquisition and its GitHub access guidance; otherwise use available authorized tools. Do not duplicate its tool catalog here.

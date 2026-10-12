@@ -1,43 +1,60 @@
-# 关键判断点咨询与任务交接
+# Expert consultation, handoff, and delivery
 
-2026-09-30更新。目标是在质量、执行效率和总消耗之间取得实用平衡。主模型由使用者选择，6.1 Sol Ultra常驻是本方案的典型背景；委派以独立交付、上下文隔离、提速或有效审查为目的，不自动当作模型能力升级。
+Updated 2026-10-12. Delegate for independent delivery, useful parallelism, focused context, or substantive scrutiny. The user chooses the lead model; another agent is not automatically a capability upgrade.
 
-## 何时介入
+## Responsibilities
 
-结合判断难度、关键假设是否已验证、选错的返工代价与可验收性考虑咨询，不只依赖主代理自称的信心。有几条合理路线、约束相互影响、证据冲突、合理尝试后停滞，或核心结论难以直接验收时，更值得请专家介入。任务长、文件多、准备发布不单独构成调用理由。
-
-对陌生、开放且方向会影响大量后续工作的任务，先读取必要材料，再判断主代理直接推进、独立咨询或完整交接哪个更有收益。Advisor不自动绑定Astra；主代理已是6.1 Ultra时，也不因任务“重要”就例行再开一个顾问。复杂独立工作可交6.1，Astra仅按具体增益少量使用，不强制先让其他模型失败。顺序交接仍服从当前工具限制，不为调用制造虚假的并行工作。
-
-## 按实际职责选择方式
-
-| 方式 | 合适情形 | 需要的交付 |
+| Responsibility | Suitable situation | Deliverable |
 |---|---|---|
-| Advisor／Guide：方向建议 | 执行者能推进，需要选择路线、检查假设或纠偏 | 建议、依据、关键风险及下一步 |
-| 直接完成子任务 | 困难部分可完整交接；只给建议再让主代理重做容易失真 | 可验收的实现、推导、分析或其他成果 |
-| 独立审查 | 已有成果，尚有值得检查的实质风险或验收缺口 | 具体问题、证据、影响与必要修正 |
+| Expert Consultation | The executor can proceed but needs a route choice, assumption check, difficult analysis, or correction | Recommendations, evidence, important conditions, unresolved questions, and a practical next step |
+| Task Execution | A difficult bounded portion can be handed over end to end | A directly usable implementation, derivation, analysis, or other result |
+| Independent Review | Existing work has a substantive risk or verification gap worth checking | Specific findings, evidence, impact, and necessary corrections |
 
-这些是工作职责，不是不同的启动接口。按主导工作、关键难度、工具条件和可验收性选择模型与档位；局部核对和整体方向判断可能需要不同配置。需要独立审查不意味着必须换模型，更不把Astra中低档固定视为6.1高档的升级。拿不准时简要说明理由，无须为每次分档询问用户。模型与档位见[native-models.md](native-models.md)。
+These are responsibilities, not built-in tools or vendor-specific modes. Consultation is not automatically Astra work. Follow [native-models.md](native-models.md); Astra remains primarily Max with Xhigh where appropriate for all three roles.
 
-咨询通常以只读分析开始；若需要查材料或做验证，可使用实际获准工具，不照搬Anthropic服务端Advisor的无工具限制。若直接执行更有价值，明确任务与可写范围后交接，避免与主代理并发修改同一部分。
+## When consultation helps
 
-## 材料与验收
+Consider unresolved assumptions, plausible competing routes, conflicting evidence, consequences of a wrong direction, repeated stalls, and whether the result is directly checkable. Length, file count, importance, or an upcoming release alone does not require consultation. For unfamiliar work affecting substantial later decisions, obtain source material and choose direct progress, independent consultation, or complete handoff according to benefit.
 
-- 交接用户原始需求和关键约束，区分证据、假设与当前主张；提供必要的原文、文件路径、失败信息或可复核结果。压缩无关材料，但不只传主代理的结论。专家可质疑题设并主动索取缺失背景。
-- 主代理按目标、来源或适当测试验收，无须重做专家的全部推理。专家的关键成果可以直接作为产物保留；汇总时保留重要条件、不确定性与依据。
-- 顾问建议应认真对待；真实文件、原始来源或针对性测试出现冲突时核对，不仅凭模型更强而服从，也不凭主代理直觉否定。无法核验的核心结论如实保留未决；严重冲突、关键信息不足或授权不明仍暂停有关部分询问用户。
+Suitable difficult work can be handed over immediately. Do not require another model to fail first, impose opening or final consultations on every task, or invent parallel work for tightly coupled sequential steps. Short or sequential assignments can still benefit when handoff costs are justified.
 
-## 控制交接成本并迭代
+## Supply sufficient context
 
-不规定每任务必调次数或统一最高次数。每次追问应有新证据、具体分歧或尚未解决的问题；已有可靠结论时不重复审查。同一问题可继续使用原子代理，需要独立视角再开新代理；同一难题反复需要专家指导时，考虑把有边界的完整子任务交给专家。
+Scale the message to the assignment, without a compulsory form or word count. Include details that affect the result:
 
-若工作几乎每一步都依赖顾问，应重新划定交接范围，考虑把困难部分完整交给合适代理；不自行更换使用者主模型。比较整项工作的质量、返工、时间及实际套餐消耗，不用credits或评测美元成本反推用户真实额度。只有具有新增价值的经验才简记到[experience.md](experience.md)，不把偶发情况自动写成永久硬规则。
+- The original user goal, current phase, confirmed decisions, and specific question or work to resolve.
+- Necessary source paths or excerpts, actual failures, and verifiable evidence. Distinguish observed facts, assumptions, and the lead's proposal.
+- Relevant methods already tried, their outcomes, and reasons for rejecting alternatives, particularly for Astra consultation without inherited conversation history.
+- File/module ownership, applicable authorization, the expected result, and meaningful completion criteria.
 
-## 下一层委派
+A short factual check may need only a few sentences. A major judgment may need substantial original phase material. Let the delegate read necessary files instead of copying an entire project, but do not replace essential evidence with only a summary of the lead's view. Do not provide or request hidden chain-of-thought; encrypted reasoning is not an ordinary handoff document.
 
-通常由主代理统一协调一级子代理，有明确收益时可嵌套。需要子代理组织下一层工作时，明确写出职责、范围和验收方式；实际能否创建取决于工具、权限和并发条件，不能仅靠选择Ultra获得或假定这些条件。
+`none` removes parent conversation history, not instructions, tools, environment information, or filesystem permissions. `all` supplies available history at creation and still needs a concrete assignment. Numeric history limits are optional only where the interface supports them with the intended model selection; a large number does not establish complete historical coverage.
 
-Max在明确要求下也可以委派，Ultra不是必要条件。Ultra子代理默认不选，但保留按需使用；本次没有证据证明它比Max子代理更主动，也不承诺必定创建下一层。每一层都显式指定模型和思考强度，避免自动继承；协调成本超过收益时由该代理直接完成或交回主代理。
+When key context is missing, the delegate should read assigned materials first and then describe the remaining gap to the lead. The lead resolves ordinary clarification. Coordinate a material scope expansion before acting; the lead takes genuinely new authorization or consequential user choices to the user.
 
-## 参考边界
+## Shared files and live sessions
 
-[Anthropic Advisor说明](https://platform.claude.com/docs/en/agents-and-tools/tool-use/advisor-tool)和[成本与效果分析](https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence)说明了顾问、漏调及过度调用的取舍；[工程实践](https://arize.com/blog/how-i-cut-coding-agent-costs-with-model-harness-routing/)提供检查点分工案例。这些支持按职责分工，不证明6.1→Astra组合或固定次数最优，也不表示Codex已接入Anthropic的原生Advisor工具。当前选型与评测边界见[native-models.md](native-models.md)。
+Agents may share a working directory and immediately see each other's edits. Task names do not reserve files, and a textual read-only request is not an operating-system sandbox.
+
+Assign non-overlapping files/modules before concurrent editing. The lead observes the same ownership. Independent output files can share a project; reconcile them before updating a shared database or final document. Serialize edits to genuinely shared files. Use a copy or worktree when isolation materially helps, not universally. One live Origin session has one writing executor.
+
+Keep work within the user's task and existing authorization. External CLIs have separately configured contexts and integrations; identify their directory and execution restrictions rather than assuming the native agent environment. Textual scope, plan mode, or a sandbox label does not prove a specific file restriction is enforced.
+
+For routine replacement, prefer an in-place patch or complete file replacement over separate deletion and recreation calls. If interrupted, inspect resulting files and restore a missing reference from its preserved backup before resuming. This does not authorize cleanup of unrelated files.
+
+## Follow-ups and acceptance
+
+Use `send_message` to provide information without starting a new turn. Use `followup_task` for additional work under the active interface's behavior. Explain new evidence, changed requirements, and prior results to preserve. Reuse a delegate for related work; start a new one when a genuinely independent view or distinct configuration helps. Use unique names and inspect uncertain outcomes before recreating tasks.
+
+A follow-up should not automatically replay completed writes or regenerate the entire result. State completed and unfinished portions clearly. Notifications or turn completion are not acceptance of the whole assignment. Waiting for updates is not a task deadline.
+
+Accept results through relevant artifacts, sources, coverage, or behavior. Avoid repeating every specialist step, fixed review counts, or automatic final reviewers. Preserve important conditions and uncertainty when integrating results. Resolve disagreements using sources or focused checks rather than model reputation or intuition.
+
+If many steps repeatedly need consultation, consider handing over the difficult portion end to end. Narrow failed work, add missing context, or take over when useful. Do not silently change the user's lead model or retry indefinitely.
+
+## Nested work and evidence
+
+Coordinate one level by default. Nesting is allowed when it has concrete value; specify responsibilities and apply selection, context, ownership, permission, and acceptance rules at each level. Ultra is not required and does not guarantee more active child delegation.
+
+Keep reusable dated observations in [experience.md](experience.md), not universal model rankings, fixed optimal consultation counts, or unsupported Ultra-versus-Max budget claims. Optional [third-party consultation guidance](https://platform.claude.com/docs/en/agents-and-tools/tool-use/advisor-tool), [cost/quality discussion](https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence), and [routing practice](https://arize.com/blog/how-i-cut-coding-agent-costs-with-model-harness-routing/) are methodological background, not runtime integrations or authority to override the user's current choices.

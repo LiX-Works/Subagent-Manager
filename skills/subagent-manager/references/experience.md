@@ -1,22 +1,31 @@
-# 子代理经验与迭代
+# Validation notes and reusable observations
 
-- 2026-10-06｜Grok调用与监控调整｜实际使用中的调用频率和额度消耗较原先预估宽裕，因此放宽提醒阈值，鼓励搜索增强提升任务表现。单日消耗整周额度严格超过30%仅提醒；默认合并5个有效研究单元后查询，小操作和同题追问合并。阈值与频率可自行调整｜账本只报告状态，持久快照结构不变；现行规则见grok-budget.md。
+These notes summarize task-specific observations and the limits of the published workflow. They are not universal performance claims or replacements for current tool definitions.
 
-此文件记录可迁移的观察与修订依据，不代替当前[模型规则](native-models.md)或[Grok预算规则](grok-budget.md)。下面的旧观察有日期，不能直接当成当前模型排名、可用额度或工具状态。
+## Context and coordination
 
-- 只在有新增价值时记录任务类型、请求的模型与思考强度、日期/版本、正确性、遗漏、返工、耗时、可见用量、证据位置和适用范围。不存认证、私人原文、完整会话或内部思考。
-- 可用一行格式：`日期｜场景｜观察与复现条件｜结果和返工｜证据｜适用边界`。详细日志留在使用者自己的任务目录，公开仓库只写可迁移结论。
-- 单次失败不封禁模型，单次成功不宣称全面胜出；区分模型能力、提示材料和工具链故障。新证据推翻旧结论时注明日期与原因。
-- 可依据实测小范围调整建议候选、交接方式和普通超时；使用者明确固定的模型下限、权限与预算规则不能由经验记录暗中改写。重要重构先说明变动，再更新相应规则文件。
+- Read-only routing checks covered intentional Sol full-history inheritance, independently configured Astra with a sufficient handoff, Gemini video sampling claims, and Grok advisory usage reminders.
+- Full-history forks inherit the lead's model and reasoning effort under the current interface. Independent overrides require `none` plus task-specific background. Check the active interface before adopting another combination.
+- A child can delegate when its tools permit it, but a high reasoning label does not guarantee further delegation. State the responsibility when nesting has a concrete benefit.
+- `none` separates conversation history, not files or permissions. Explicit ownership and serialized shared-file edits remain necessary.
+- These checks validate instruction routing; they are not a new end-to-end test of every provider or model combination.
 
-## 可迁移观察（2026-09快照）
+## Gemini video path
 
-- 原生子代理若未在实际调用参数中同时指定模型和思考强度，可能继承主代理设置；只在提示词中要求某模型不算显式指定。调用后可核对实际组合，组合不可用时说明限制。
-- 2026-09-30更新：6.1接替旧6 Sol；主代理已是6.1 Ultra时，同型号子代理的价值应是独立交付、上下文隔离或审查，不能自动当能力升级。Astra退出日常默认分工，仅按具体增益少量使用Max或Xhigh。
-- 2026-09-30最小验证：Luna Max在明确要求下成功创建下一层Luna Max；显式请求6.1 Ultra的子代理完成只读任务，但本次没有继续委派。不能据此声称Ultra子代理更主动；需要下一层工作时明确职责，每层显式指定模型与强度。
-- Codex原生子代理与独立AGY CLI的工具环境不能想当然视为相同。任务需要连续使用Codex中现成的Skill、MCP和搜索入口时，Luna通常更省交接；材料齐备且独立处理为主时，Gemini可成为候选。这不表示Gemini本身没有工具能力。
-- 历史观察：Astra Low不宜只凭名称被当成Sol Max的能力升级；当前Astra默认不选，具体以最新模型规则和任务验收为准。
-- Grok普通WebSearch成功不证明XSearch可用；检查真实工具事件和原帖来源。复杂多帖追踪应给足任务时间，但有重复循环时也要及时收束。
-- Grok交互界面的`/usage`在测试版本中能显示账户每周已用比例和重置时间；终端命令`grok usage <SESSION_ID>`统计的是单个会话已保存的Token与成本。后者不能推算账户每周剩余额度。
+An October 2026 test used AGY 1.3.2 and `gemini-3.8-flash-high` with High effort to read an approximately 22-second MP4. The broad interpretation was useful, but a brief interface state was omitted and some numbers and time anchors were inaccurate.
 
-新的实践结果可追加在此，并注明它是观察、推断还是已采纳的规则。不要把用户特定的目录、账户余额、代理端口或过期临时策略带入公开示例。
+The request mentioned 2 fps, but the observed tool invocation did not verify an applied sampling rate. Treat textual sampling requests as preferences until tool arguments, results, or prepared-input records establish the setting. Controlled local frame preparation is an optional route that has not been validated here.
+
+Check timestamps, literal text, numbers, units, and event correspondence separately. A plausible summary or success flag does not establish complete coverage. See [video handoffs](google.md).
+
+## Grok monitoring
+
+The snapshot ledger stores supplied observations; it does not query a provider or inspect authentication. Its daily total is an observed lower bound when sampling misses part of the day. Exactly 30 percentage points does not trigger the above-threshold reminder; a larger observed daily value triggers an advisory state without pausing research.
+
+The threshold, check cadence, and day boundary are configurable workflow choices. Keep written rules and script constants aligned when adapting them. See [usage monitoring](grok-budget.md).
+
+## Recording new observations
+
+Within an authorized project location, record the date, tool version, requested and verified settings, input scope, observable result, remaining uncertainty, and whether any policy changed. Keep historical observations separate from current instructions.
+
+Exclude credentials, cookies, account snapshots, private source text, personal paths, and raw session logs from public notes. Publish only the reusable finding and enough non-sensitive context to understand its limits.
