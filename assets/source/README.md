@@ -12,6 +12,6 @@ This writes `subagent-manager-overview.svg` (the editable source copy) and a loc
 msedge --headless=new --hide-scrollbars --force-device-scale-factor=2 --window-size=1600,1000 --screenshot=subagent-manager-overview.png assets/source/subagent-manager-overview.html
 ```
 
-Pass `joinA` as an argument to build the alternative with a white Sol card and two-tone arrows. Layout, colours, and icons are defined at the top of the script.
+Pass `joinA` as the first argument to build the alternative with a white Sol card and two-tone arrows. A second argument sets the middle row: `centered` (default, used in the README) centres the Lead card on the canvas; `balanced` centres the whole row, optional cards included. Colours and icons are defined at the top of the script.
 
 See [asset sources](ASSET_SOURCES.md) for third-party artwork provenance.

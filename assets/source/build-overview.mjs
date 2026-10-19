@@ -76,9 +76,11 @@ function card(c, set, optional = false) {
   const frame = optional
     ? `<rect x="${c.x}" y="${c.y}" width="${c.w}" height="${c.h}" rx="22" fill="${C.card}" stroke="${C.opt}" stroke-width="2.4" stroke-dasharray="18 12"/>`
     : `<rect x="${c.x}" y="${c.y}" width="${c.w}" height="${c.h}" rx="22" fill="${C.card}" stroke="${C.cardStroke}" stroke-width="1.8" filter="url(#shadow)"/>`;
-  return `<g>${frame}${glyph(c.icon, c.x + 58, cy, set, col, tint)}
-    <text x="${c.x + 104}" y="${cy - 6}" font-size="27" font-weight="650" fill="${C.ink}">${c.title}</text>
-    <text x="${c.x + 104}" y="${cy + 29}" font-size="23" font-weight="500" fill="${C.subStrong}">${c.sub}</text></g>`;
+  // optional cards use tighter padding so the column stays compact
+  const ix = optional ? 44 : 58, tx = optional ? 84 : 104;
+  return `<g>${frame}${glyph(c.icon, c.x + ix, cy, set, col, tint)}
+    <text x="${c.x + tx}" y="${cy - 6}" font-size="27" font-weight="650" fill="${C.ink}">${c.title}</text>
+    <text x="${c.x + tx}" y="${cy + 29}" font-size="23" font-weight="500" fill="${C.subStrong}">${c.sub}</text></g>`;
 }
 
 function lead(L, set) {
@@ -93,16 +95,35 @@ function lead(L, set) {
     <text x="${cx}" y="${c.y + 186}" text-anchor="middle" font-size="25" font-weight="600" fill="#F2F6FD">GPT-6.1 Sol Ultra</text></g>`;
 }
 
+// Polyline with triangular heads. The shaft stops inside each head, so the tips stay sharp.
+// `size` matches the former marker size: head length 13/16 of it, half-width 6.5/16,
+// tip 1.5/16 beyond the given end point.
+function arrowLine(pts, { color, width, size, start = false, end = true, extra = '' }) {
+  const len = size * 13 / 16, half = size * 6.5 / 16, over = size * 1.5 / 16;
+  const p = pts.map(([x, y]) => [x, y]);
+  let heads = '';
+  const cap = (i, j) => {
+    const [x, y] = p[i], [px, py] = p[j];
+    const n = Math.hypot(x - px, y - py), ux = (x - px) / n, uy = (y - py) / n;
+    const tx = x + over * ux, ty = y + over * uy, bx = tx - len * ux, by = ty - len * uy;
+    heads += `<path d="M${f1(tx)} ${f1(ty)} L${f1(bx - half * uy)} ${f1(by + half * ux)} L${f1(bx + half * uy)} ${f1(by - half * ux)}Z" fill="${color}"/>`;
+    p[i] = [tx - 0.6 * len * ux, ty - 0.6 * len * uy];
+  };
+  if (end) cap(p.length - 1, p.length - 2);
+  if (start) cap(0, 1);
+  const d = 'M' + p.map(([x, y]) => `${f1(x)} ${f1(y)}`).join(' L');
+  return `<path d="${d}" fill="none" stroke="${color}" stroke-width="${width}" stroke-linejoin="round" ${extra}/>${heads}`;
+}
+
 function links(L, pair) {
-  const lw = 5.5;
-  const solid = (start = true) => `fill="none" stroke="${C.line}" stroke-width="${lw}" stroke-linejoin="round" ${start ? 'marker-start="url(#arrow)" ' : ''}marker-end="url(#arrow)"`;
-  const dashed = `fill="none" stroke="${C.opt}" stroke-width="4.2" stroke-dasharray="18 12" stroke-linejoin="round" marker-start="url(#arrowOpt)" marker-end="url(#arrowOpt)"`;
+  const solid = { color: C.line, width: 5.5, size: 21, start: true };
+  const dashed = { color: C.opt, width: 4.2, size: 19, start: true, extra: 'stroke-dasharray="18 12"' };
   const { lead: ld, right } = L, mid = ld.x + ld.w / 2, cy = ld.y + ld.h / 2, gap = 6;
   const leadTop = ld.y, leadBot = ld.y + ld.h, leadR = ld.x + ld.w;
   let s = '';
-  for (const c of L.top) s += `<path d="M${c.x + c.w / 2} ${c.y + c.h + gap} V272 H${mid} V${leadTop - gap}" ${solid()}/>`;
-  for (const c of L.bottom) s += `<path d="M${c.x + c.w / 2} ${c.y - gap} V700 H${mid} V${leadBot + gap}" ${solid()}/>`;
-  for (const c of L.left) s += `<path d="M${c.x + c.w + gap} ${c.y + c.h / 2} H${L.busX} V${cy} H${ld.x - gap}" ${dashed}/>`;
+  for (const c of L.top) s += arrowLine([[c.x + c.w / 2, c.y + c.h + gap], [c.x + c.w / 2, 272], [mid, 272], [mid, leadTop - gap]], solid);
+  for (const c of L.bottom) s += arrowLine([[c.x + c.w / 2, c.y - gap], [c.x + c.w / 2, 700], [mid, 700], [mid, leadBot + gap]], solid);
+  for (const c of L.left) s += arrowLine([[c.x + c.w + gap, c.y + c.h / 2], [L.busX, c.y + c.h / 2], [L.busX, cy], [ld.x - gap, cy]], dashed);
   s += `<g font-size="24" font-weight="600" fill="${C.ink}">
     <text x="${mid + 16}" y="${leadBot + 62}">focused brief</text></g>`;
   return s;
@@ -127,14 +148,14 @@ function solCard(r, mode) {
 function seamArrows(L, mode) {
   const ld = L.lead, r = L.right, cy = ld.y + ld.h / 2;
   const seam = (ld.x + ld.w + r.x) / 2, reach = 38, x1 = seam - reach, x2 = seam + reach;
-  const fork = `M${x1} ${cy - 22} H${x2}`, result = `M${x2} ${cy + 22} H${x1}`;
-  const draw = (color, marker, w = 6) => `<path d="${fork}" fill="none" stroke="${color}" stroke-width="${w}" marker-end="url(#${marker})"/>
-    <path d="${result}" fill="none" stroke="${color}" stroke-width="${w}" marker-end="url(#${marker})"/>`;
-  if (mode === 'joinB') return draw(C.amber, 'arrowAmber', 8);
+  const draw = (color, size, w = 6) =>
+    arrowLine([[x1, cy - 22], [x2, cy - 22]], { color, width: w, size }) +
+    arrowLine([[x2, cy + 22], [x1, cy + 22]], { color, width: w, size });
+  if (mode === 'joinB') return draw(C.amber, 26, 8);
   return `<defs><clipPath id="seamL"><rect x="0" y="0" width="${seam}" height="${H}"/></clipPath>
       <clipPath id="seamR"><rect x="${seam}" y="0" width="${W - seam}" height="${H}"/></clipPath></defs>
-    <g clip-path="url(#seamL)">${draw('#FFFFFF', 'arrowWhite')}</g>
-    <g clip-path="url(#seamR)">${draw(C.ink, 'arrowInk')}</g>`;
+    <g clip-path="url(#seamL)">${draw('#FFFFFF', 22)}</g>
+    <g clip-path="url(#seamR)">${draw(C.ink, 22)}</g>`;
 }
 
 function svg(L, set, pair) {
@@ -146,13 +167,6 @@ function svg(L, set, pair) {
     <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".16"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/></linearGradient>
     <filter id="shadow" x="-20%" y="-30%" width="140%" height="170%"><feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="#16203A" flood-opacity=".10"/></filter>
     <filter id="leadShadow" x="-25%" y="-30%" width="150%" height="170%"><feDropShadow dx="0" dy="10" stdDeviation="16" flood-color="#22386A" flood-opacity=".32"/></filter>
-    <marker id="arrow" viewBox="0 0 16 16" refX="13" refY="8" markerWidth="21" markerHeight="21" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
-      <path d="M1.5 1.5 L14.5 8 L1.5 14.5 Z" fill="${C.line}"/></marker>
-    <marker id="arrowOpt" viewBox="0 0 16 16" refX="13" refY="8" markerWidth="19" markerHeight="19" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
-      <path d="M1.5 1.5 L14.5 8 L1.5 14.5 Z" fill="${C.opt}"/></marker>
-    ${[['arrowWhite', '#FFFFFF'], ['arrowInk', C.ink], ['arrowAmber', C.amber]].map(([id, col]) =>
-      `<marker id="${id}" viewBox="0 0 16 16" refX="13" refY="8" markerWidth="${id === 'arrowAmber' ? 26 : 22}" markerHeight="${id === 'arrowAmber' ? 26 : 22}" markerUnits="userSpaceOnUse" orient="auto">
-      <path d="M1.5 1.5 L14.5 8 L1.5 14.5 Z" fill="${col}"/></marker>`).join('')}
     <linearGradient id="solGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2E5290"/><stop offset="1" stop-color="#4C7EBF"/></linearGradient>
   </defs>
   <rect x="20" y="16" width="${W - 40}" height="206" rx="28" fill="${C.bandTop}"/>
@@ -172,9 +186,18 @@ function svg(L, set, pair) {
 </svg>`;
 }
 
-function layout() {
-  const cx = 820, gap = 6;
-  const lead = { x: cx - 230, y: 370, w: 460, h: 220 };
+// Middle-row placement (the top and bottom rows are always centred on cx = 800):
+//   centered: the Lead card itself is centred on the canvas
+//   balanced: the whole middle row (optional cards + Lead + Sol) is centred, equal side margins
+const MIDDLE = {
+  centered: { lead: 570, opt: 130, bus: 515 },
+  balanced: { lead: 625, opt: 210, bus: 582 },
+};
+
+function layout(variant) {
+  const m = MIDDLE[variant];
+  const cx = 800, gap = 6;
+  const lead = { x: m.lead, y: 370, w: 460, h: 220 };
   return {
     cx, lead,
     right: { x: lead.x + lead.w + gap, y: 370, w: 300, h: 220 },
@@ -183,10 +206,10 @@ function layout() {
       { x: cx + 15, y: 59, w: 375, h: 120, icon: 'star', title: 'Independent review', sub: 'Astra or Sol' },
     ],
     left: [
-      { x: 110, y: 360, w: 385, h: 120, icon: 'gemini', title: 'Video & frames', sub: 'Gemini via AGY' },
-      { x: 110, y: 500, w: 385, h: 120, icon: 'grok', title: 'X & web research', sub: 'Grok CLI' },
+      { x: m.opt, y: 360, w: 330, h: 120, icon: 'gemini', title: 'Video & frames', sub: 'Gemini via AGY' },
+      { x: m.opt, y: 500, w: 330, h: 120, icon: 'grok', title: 'X & web research', sub: 'Grok CLI' },
     ],
-    busX: 543,
+    busX: m.bus,
     bottom: [
       { x: cx - 555, y: 780, w: 350, h: 120, icon: 'moon', title: 'Extract & cite', sub: 'GPT-6 Luna Max' },
       { x: cx - 175, y: 780, w: 350, h: 120, icon: 'moon', title: 'Locate & edit', sub: 'GPT-6 Luna Max' },
@@ -196,7 +219,8 @@ function layout() {
 }
 
 const mode = process.argv[2] || 'joinB';
-const out = svg(layout(), 'solid', mode);
+const variant = process.argv[3] || 'centered';
+const out = svg(layout(variant), 'solid', mode);
 writeFileSync(here('subagent-manager-overview.svg'), out);
 writeFileSync(here('subagent-manager-overview.html'),
   `<!doctype html><meta charset="utf-8"><style>html,body{margin:0;background:#fff}svg{display:block}</style>${out}`);
