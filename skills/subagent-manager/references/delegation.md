@@ -1,6 +1,6 @@
 # Expert consultation, handoff, and delivery
 
-Updated 2026-10-12. Delegate for independent delivery, useful parallelism, focused context, or substantive scrutiny. The user chooses the lead model; another agent is not automatically a capability upgrade.
+Updated 2026-10-14. Delegate for independent delivery, useful parallelism, focused context, or substantive scrutiny. The user chooses the lead model; another agent is not automatically a capability upgrade.
 
 ## Responsibilities
 
@@ -52,6 +52,15 @@ A follow-up should not automatically replay completed writes or regenerate the e
 Accept results through relevant artifacts, sources, coverage, or behavior. Avoid repeating every specialist step, fixed review counts, or automatic final reviewers. Preserve important conditions and uncertainty when integrating results. Resolve disagreements using sources or focused checks rather than model reputation or intuition.
 
 If many steps repeatedly need consultation, consider handing over the difficult portion end to end. Narrow failed work, add missing context, or take over when useful. Do not silently change the user's lead model or retry indefinitely.
+
+## Resume interrupted work
+
+Use observable current state; the interruption cause need not be known. First reconcile current requirements, existing outputs, and whether the previous delegate can continue. If unclear, make a minimal status check or bounded follow-up using the available interface before treating it as unavailable or finished.
+
+- **Can continue:** prefer the same delegate and its available context. If still running, do not create a duplicate worker. Supply only necessary updates and unfinished work; fill demonstrated context gaps without rebuilding the whole handoff. Accept saved completed work before requesting more.
+- **Cannot continue:** preserve accessible messages, processing records, and artifacts. Separate completed, not yet integrated, unfinished, and uncertain portions. Recover from existing records, then give a replacement or the lead only the remaining work, necessary background, current Skill paths/versions, output locations, and explicit file ownership. Missing records stay unknown; do not invent progress or rerun verified completed work.
+
+Retained history does not prove runtime availability; a successful call does not prove complete context retention. For long work, reuse an existing checkpoint where useful, identify authoritative current state, and mark obsolete state as superseded. Keep recovery records proportional: no mandatory new log, full transcript copy, or file duplication for every pause.
 
 ## Nested work and evidence
 

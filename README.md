@@ -2,64 +2,44 @@
 
 **English** | [简体中文](README.zh-CN.md)
 
-A Codex Skill for coordinating specialized AI agents: choose suitable delegates, transfer context, divide file responsibilities, and combine checked results.
+Subagent Manager is a Skill that lets Codex lead a team of AI subagents. As the lead, it decides what is worth delegating, picks the right model for each piece, hands over the context it needs, and checks every result before it becomes part of the answer.
 
-This repository collects a workflow I have refined through everyday use. It is intended for anyone using Codex for research, writing, data extraction, or programming who wants a clearer division of labor. The core is a [Skill](skills/subagent-manager/SKILL.md)—a set of working rules Codex reads during a task—accompanied by model recommendations, external CLI notes, and handoff guidelines.
+- **Parallel work, focused lead.** Long reading, data extraction, and routine edits run in their own contexts while the lead stays on the core analysis.
+- **The right model for each job.** Sol takes on heavy execution, Astra gives expert consultation and independent review, and Luna Max takes routine work off the lead's plate. Gemini for video and Grok for X and web research plug in when you need them.
+- **Handoffs that carry real context.** Every delegate gets the goal, the materials, the files it owns, and how its result will be checked, with either the full project history or a focused brief.
+- **Every result is checked.** The lead verifies returned work against sources or tests before using it. Agreement between models does not count as proof.
 
-The homepage is bilingual. The Skill and its detailed reference documents are written in English; the agent continues to reply in your preferred language.
+<img src="assets/subagent-manager-overview.png" alt="The lead agent works with a Sol delegate through full-history forks, consults Astra for expert advice and independent review, sends focused briefs to parallel Luna Max workers, and can call optional Gemini and Grok specialists." width="1600">
 
-## When delegation helps
+Built mainly for Codex, from the workflow I use every day for research, writing, data work, and programming. This README is available in English and Chinese; the Skill and its reference guides are in English. The agent replies in your preferred language.
 
-A capable main agent, such as 6.1 Sol Ultra, can handle much of the work directly. Delegate when a separate task or context helps; account for the time needed to prepare materials and review the result.
+## What's new
 
-Delegation offers four common benefits:
+- **Fuller context handoffs.** With `fork_turns: "all"`, a Sol delegate inherits the whole conversation, and independent consultations receive the original material rather than a short summary.
+- **Always the latest rules.** The Skill carries a version number. The agent checks it at each new turn and after an interruption, and rereads the rules whenever they change.
+- **Picks up after interruptions.** After an interruption or context compaction, the lead reuses delegates that can continue, keeps finished work, and reassigns only what is left.
 
-1. **Context isolation**: Keeping extensive reading, data extraction, or intermediate logs in a separate context helps the main agent remain focused on core analysis.
-2. **Parallel progress**: Self-contained tasks with clear boundaries can proceed alongside the main train of thought.
-3. **Independent review**: Reviewing a proposed plan in a separate context can reveal unstated assumptions, edge cases, and omissions. It does not remove bias or replace evidence.
-4. **Context continuity**: When a specialist needs the ongoing project's background, a supported full-history fork carries available conversation context into the assignment.
+## Model roles
 
-Short tasks can be worth delegating if the deliverable is clear. Conversely, tasks that depend heavily on the ongoing dialogue or require frequent back-and-forth are usually better handled directly by the main agent.
+A strong lead such as 6.1 Sol Ultra handles a lot on its own; it delegates when a separate context, parallel progress, or a second view is worth the time spent briefing and checking. Available models and effort levels depend on your Codex setup and account.
 
-## A practical example
+| Delegate | Role |
+|---|---|
+| **GPT-6.1 Sol** | Complex analysis, implementation, and substantive review, usually with the lead's full history |
+| **GPT-6 Astra** | Expert consultation, independent review, and difficult execution, when there is a concrete reason to expect added value |
+| **GPT-6 Luna Max** | Routine extraction, code location, small edits, and checks with clear criteria |
+| **Gemini 3.8 Flash High** *(optional, via AGY CLI)* | Video understanding and related frame analysis, returning evidence and timestamps |
+| **Grok CLI** *(optional)* | X posts and threads, plus web research and verification; a reminder appears when daily use passes 30% of the weekly allowance |
 
-Consider checking a technical plan alongside 20 downloaded reference documents. One practical division of labor is:
-
-| Role | Responsibility | Deliverable |
-|---|---|---|
-| Main agent *(e.g., 6.1 Sol Ultra)* | Clarify goals and constraints, guide core analysis, coordinate tasks, and assemble the final result | Final assessment and integrated findings |
-| Luna Max | Read the 20 documents, extract specified fields, and verify citations against the text | Structured data table, source references, questions, and unresolved items |
-| 6.1 Sol *(if helpful)* | Analyze the plan using inherited project context or a prepared handoff, depending on the task | Key assumptions, concrete concerns, and suggested checks |
-
-When handing off work, the main agent should provide the objective, necessary materials, constraints, and acceptance criteria. Returned work should be checked against original sources or tests; agreement between models is not proof of fact.
-
-## Model roles and parameters
-
-These default candidates reflect practical tradeoffs between task requirements and tool availability. Model and effort availability depends on your Codex setup and account tier.
-
-| Candidate | Primary use | Selection considerations |
-|---|---|---|
-| **GPT-6 Luna Max** | Routine extraction, locating code, small edits, and checks | Tasks with clear criteria and straightforward verification, especially when relying on Codex Skills, MCP tools, search, or project tools |
-| **Gemini 3.8 Flash High** *(via optional AGY CLI)* | Video understanding and related frame analysis | Explicit evidence, timestamps, and coverage are requested. AGY has its own context and tools; sampling settings must be verified rather than assumed from the prompt |
-| **GPT-6.1 Sol** | Complex analysis, implementation, and substantive review | Prefer full-history inheritance when the lead's model and effort fit the assignment; independent configuration remains available |
-| **GPT-6 Astra** | Selective expert consultation, independent review, and difficult execution | Use when there is a concrete reason to expect added value, mainly Max with Xhigh as needed. These responsibilities are not special vendor tool modes |
-| **Grok CLI** *(optional)* | Research on X posts and threads, plus useful web research and verification | Strongly encouraged whenever search enhancement helps the task. Daily use above 30% of the weekly allowance triggers a reminder that does not pause research or restrict further dispatch |
-
-### Model choice and context handoffs
-
-For a suitable Sol task, prefer `fork_turns: "all"` when the intended model and effort match the lead. Under the current interface, this deliberately inherits both settings, so incompatible overrides are omitted. For independently selected models or effort, use explicit invocation parameters and a sufficient `none` handoff. Mentioning a model in prompt text does not configure it.
-
-Even with inherited history, each assignment states its goal, necessary inputs, file responsibility, and expected result. Full-history forks do not synchronize later messages, and `none` does not isolate files. The main agent usually coordinates one level; further delegation is available when it has a concrete benefit. Ultra is allowed, including inheritance from a Sol Ultra lead, but does not guarantee further delegation.
-
-See [model selection rules](skills/subagent-manager/references/native-models.md) for full reasoning tiers, older-model fallbacks, and the limits of benchmark evidence.
+Effort levels, handoff rules, and recovery steps are in [model selection](skills/subagent-manager/references/native-models.md) and [task handoffs](skills/subagent-manager/references/delegation.md).
 
 ## Getting started
 
-You can start with Codex's built-in subagents if your environment supports them:
+Codex's built-in subagents are enough to start:
 
-1. Copy the `skills/subagent-manager/` folder into your personal `$HOME/.agents/skills/` directory or your project's `.agents/skills/` directory. Choose one location. If a Skill with the same name already exists, review your customized rules before replacing it.
-2. Mention `$subagent-manager` in a task, or let Codex select it based on context. If the Skill does not appear, restart Codex. See the [official installation guide](https://learn.chatgpt.com/docs/build-skills).
-3. Try an initial task and let Codex determine what is worth delegating:
+1. Copy the `skills/subagent-manager/` folder into `$HOME/.agents/skills/` or your project's `.agents/skills/`. Choose one location, and compare any customized rules before replacing an existing copy.
+2. Mention `$subagent-manager` in a task, or let Codex select it from context. If the Skill does not appear, restart Codex. See the [official Skill guide](https://learn.chatgpt.com/docs/build-skills).
+3. Try a task and let the lead decide what to delegate:
 
 ```text
 Use $subagent-manager to help review this technical plan.
@@ -73,33 +53,25 @@ The main agent should continue the core analysis and handle final review.
 
 ## Optional integrations
 
-The Skill provides working rules, rather than installing tools or granting model access. If a model or interface is unavailable, Codex should report the limitation and choose a workable path.
-
-Add the following integrations as needed:
+The Skill supplies working rules; it does not install tools or grant model access. When a model or interface is unavailable, Codex reports it and takes a workable path.
 
 | Extension | Purpose | Requirements |
 |---|---|---|
-| [AGY / Gemini](skills/subagent-manager/references/google.md) | Analyze video and related frames, returning evidence to the lead | AGY CLI installed and logged in; PowerShell 7 for the wrapper script |
-| [Grok](skills/subagent-manager/references/grok.md) | Investigate original posts, discussions, and web sources | Grok CLI installed and logged in, with applicable free or subscription usage allowances; this workflow uses only authorized included usage |
-| [Grok quota rules](skills/subagent-manager/references/grok-budget.md) | Check usage after grouped research units; notify above 30% daily consumption of the weekly allowance | Default: 5 substantive research units per check; Python 3 for the snapshot ledger |
-| [Windows proxy module](extras/windows-proxy/README.md) | Set a process-level proxy for a single CLI invocation | Direct connections do not need this; if needed, supply your client's HTTP(S) or Mixed port |
+| [AGY / Gemini](skills/subagent-manager/references/google.md) | Analyze video and related frames, returning evidence to the lead | AGY CLI installed and signed in; PowerShell 7 for the wrapper script |
+| [Grok](skills/subagent-manager/references/grok.md) | Investigate original posts, discussions, and web sources | Grok CLI installed and signed in, with free or subscription usage; this workflow uses only included, authorized usage |
+| [Grok usage rules](skills/subagent-manager/references/grok-budget.md) | Check usage after grouped research units; remind above 30% daily use of the weekly allowance | Checks every 5 substantive research units by default; Python 3 for the snapshot ledger |
+| [Windows proxy module](extras/windows-proxy/README.md) | Set a process-level proxy for a single CLI call | Not needed on a direct connection; otherwise supply your client's HTTP(S) or Mixed port |
 
-Keep these Grok usage metrics distinct:
+## Adapting and documentation
 
-- `/usage` in interactive mode shows weekly account usage and reset time.
-- `grok usage <SESSION_ID>` shows token counts and costs for a specific session.
-- The included ledger script saves account snapshots and records daily usage. The main agent can query usage and pass snapshots to the ledger, but the script itself does not query the account.
-
-## Adapting the workflow and documentation
-
-Adjust model tiers, effort levels, and Grok query budgets according to your actual account permissions, tools, and schedule. Public benchmarks are a reference, not a direct predictor of your available task volume.
+Adjust model tiers, effort levels, and Grok budgets to your own access, tools, and schedule.
 
 | Topic | Reference |
 |---|---|
 | Delegation decisions, handoffs, and review rules | [SKILL.md](skills/subagent-manager/SKILL.md) |
-| Model candidate details, effort levels, and benchmark limits | [Model selection](skills/subagent-manager/references/native-models.md) |
-| Expert consultation, execution, independent review, and nesting | [Task handoffs](skills/subagent-manager/references/delegation.md) |
-| Environment verification and configurable defaults | [Customization](docs/customization.md) |
-| Practical notes and background on revisions | [Experience notes](skills/subagent-manager/references/experience.md) |
+| Model candidates, effort levels, and benchmark limits | [Model selection](skills/subagent-manager/references/native-models.md) |
+| Consultation, execution, review, nesting, and recovery | [Task handoffs](skills/subagent-manager/references/delegation.md) |
+| Environment checks and configurable defaults | [Customization](docs/customization.md) |
+| Practical notes and the background of revisions | [Experience notes](skills/subagent-manager/references/experience.md) |
 
-This Skill can be used alone or alongside [agent-search-booster](https://github.com/LiX-Works/agent-search-booster) for multi-channel research. See [Releases](https://github.com/LiX-Works/subagent-manager/releases) for updates. Released under the [MIT license](LICENSE).
+Use it on its own or with [agent-search-booster](https://github.com/LiX-Works/agent-search-booster) for multi-source research. See [Releases](https://github.com/LiX-Works/subagent-manager/releases) for updates. Released under the [MIT license](LICENSE).

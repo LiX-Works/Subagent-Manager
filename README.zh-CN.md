@@ -2,64 +2,44 @@
 
 [English](README.md) | **简体中文**
 
-让 Codex 协调不同专长的 AI Agent：选择合适的任务执行者、传递上下文、分配文件职责，并核对和整合成果。
+Subagent Manager 是一个 Skill，让 Codex 带领一组 AI 子代理协同工作：由它判断哪些工作值得委派，为每一部分选择合适的模型，交接它需要的上下文，并在成果进入最终答案前逐一核对。
 
-这个项目整理了我在日常使用中逐步调整的一套子代理协作方式。它适合使用 Codex 进行研究、资料整理、技术写作或编程，并希望让多代理分工更清晰的读者。核心是一份 [Skill](skills/subagent-manager/SKILL.md)——即 Codex 在任务中读取的工作规则，同时包含模型选择参考、外部 CLI 接入说明与交接经验。
+- **并行推进，主 Agent 专注核心。** 大量阅读、数据提取和常规修改在各自的上下文中进行，主 Agent 专心做核心分析。
+- **每项工作配合适的模型。** Sol 承担繁重的执行，Astra 负责专家咨询和独立复核，Luna Max 承担常规工作；需要时还可以接入 Gemini 分析视频、Grok 调研 X 和网页。
+- **交接带着真正的上下文。** 每个子代理都会拿到目标、资料、负责的文件和验收方式，并按任务需要继承完整的项目历史，或拿到一份精简的任务说明。
+- **每份成果都经过核对。** 主 Agent 根据原始资料或测试核对交回的成果后才会使用；多个模型结论一致，不算证据。
 
-本仓库首页提供双语版本，Skill 与详细参考文档使用英文编写；Agent 仍按你的语言偏好回复。
+<img src="assets/subagent-manager-overview.png" alt="主 Agent 通过完整历史分叉与 Sol 子代理协作，向 Astra 请求专家咨询和独立复核，以精简任务说明把常规工作并行交给 Luna Max，并可调用可选的 Gemini 和 Grok。" width="1600">
 
-## 什么时候值得用子代理
+本项目主要面向 Codex，整理自我日常做研究、写作、数据处理和编程时使用的工作流。首页提供中英文版本；Skill 和详细参考文档使用英文，Agent 仍按你的语言偏好回复。
 
-6.1 Sol Ultra 等能力较强的主 Agent，可以直接完成相当多的工作。是否委派，要看独立任务或上下文能带来多少收益，同时考虑准备材料和验收结果的成本。
+## 更新亮点
 
-委派主要有四个常见收益：
+- **更完整的上下文交接。** 通过 `fork_turns: "all"`，Sol 子代理直接继承完整对话；独立咨询拿到的是原始材料，而不只是一段简短摘要。
+- **始终使用最新规则。** Skill 带有版本号。Agent 每次收到新请求、以及从中断中恢复时，都会核对版本，规则一有变化就重新读取。
+- **中断后接着做。** 遇到中断或上下文压缩，主 Agent 会复用还能继续的子代理，保留已完成的成果，只重新分派剩下的部分。
 
-1. **隔离冗长材料**：将大篇幅原始资料阅读、数据抽取或中间排查日志留在独立上下文中，让主 Agent 集中精力处理核心逻辑与方案综合。
-2. **并行推进**：边界清晰、可独立交付的研究或实现环节，可以与主任务同步进行。
-3. **独立复核**：让一个没有主会话多轮推演记忆的新上下文审视已有方案，有助于检查未说明的前提假设、边界遗漏与异常情况。独立上下文有助于发现盲点，但并不能消除所有偏见。
-4. **延续项目背景**：任务需要已有讨论与决策时，可通过接口支持的完整历史继承，将可用的对话上下文交给子代理。
+## 模型分工
 
-任务耗时短或涉及文件少，只要交付明确，也可以考虑委派。反之，若任务高度依赖正在进行的对话细节，或者需要频繁来回确认，通常直接由主 Agent 处理更合适。
+6.1 Sol Ultra 这样的强主 Agent 能独立完成很多工作；当独立上下文、并行推进或另一个视角值得花时间准备交接和验收时，它才会委派。可用的模型和思考强度以你的 Codex 环境和账户为准。
 
-## 一个分工例子
+| 子代理 | 职责 |
+|---|---|
+| **GPT-6.1 Sol** | 复杂分析、实现与实质审查，通常继承主 Agent 的完整历史 |
+| **GPT-6 Astra** | 专家咨询、独立复核与困难任务执行，有具体理由预期额外收益时使用 |
+| **GPT-6 Luna Max** | 标准明确的常规提取、代码定位、小改动与检查 |
+| **Gemini 3.8 Flash High** *(可选，通过 AGY CLI)* | 视频理解与相关帧分析，交回证据和时间位置 |
+| **Grok CLI** *(可选)* | X 原帖与讨论串，以及网页调研与核验；单日消耗超过周额度的 30% 时提醒 |
 
-假设需要核查一份技术方案，同时阅读 20 份已经下载的参考资料。一种切合实际的分工安排是：
-
-| 角色 | 负责什么 | 交回什么 |
-|---|---|---|
-| 主 Agent *(如 6.1 Sol Ultra)* | 明确目标与约束，推进核心分析，协调各子任务，整理最终结论 | 完整的方案评估与综合分析 |
-| Luna Max | 阅读 20 份参考资料，按指定字段提取信息并核对出处 | 提取后的结构化表、出处位置、疑点与未处理项 |
-| 6.1 Sol *(按需使用)* | 根据任务，利用继承的项目背景或准备好的交接材料分析方案 | 关键假设、具体问题与核对建议 |
-
-主 Agent 派发任务时应交代清楚目标、必要资料、操作范围和验收标准。子代理交回成果后，主 Agent 需根据原始资料或测试进行核验；多个模型给出相同结论，不能代替事实核对。
-
-## 模型分工与参数设置
-
-下面是工作流采用的默认候选，可根据实际任务表现调整。可用模型与思考档位以你的 Codex 环境及账户权限为准。
-
-| 候选 | 主要用途 | 选用时考虑什么 |
-|---|---|---|
-| **GPT-6 Luna Max** | 常规提取、代码定位、小改动与检查 | 任务明确、容易检验，尤其需要 Codex 已配置的 Skill、MCP、搜索或项目工具时 |
-| **Gemini 3.8 Flash High** *(通过可选 AGY CLI)* | 视频理解与相关帧分析 | 交回证据、时间位置和实际覆盖范围。AGY 有独立的上下文与工具；采样设置需要核实，不能仅凭提示词认定生效 |
-| **GPT-6.1 Sol** | 复杂分析、实现与实质审查 | 主 Agent 的模型和强度适合该任务时，优先继承完整历史；也可以独立设置参数 |
-| **GPT-6 Astra** | 按需进行专家咨询、独立审查或困难任务执行 | 有具体理由期待额外收益时使用，以 Max 为主，Xhigh 按需；这些是工作职责，并非厂商特有的工具模式 |
-| **Grok CLI** *(可选)* | X 原帖与讨论串研究，以及有价值的网页调研与核验 | 搜索增强能帮助任务就非常鼓励调用，可深入追查；单日消耗周额度超过30%只提醒，不暂停研究或限制后续派发 |
-
-### 模型选择与上下文交接
-
-适合 Sol 的任务，如果目标模型和思考强度与主 Agent 一致，优先使用 `fork_turns: "all"`。当前接口中，这会有意继承两项设置，因此不再传入不兼容的覆盖参数。独立选择模型或强度时，显式设置调用参数，并用 `none` 配合充分的背景交接。仅在提示词里提及模型名称，不等于完成配置。
-
-即使继承了历史，也要交代任务目标、必要输入、文件职责和预期成果。完整历史不会自动同步后续消息，`none` 也不隔离文件。主 Agent 通常协调一级子代理；进一步委派有明确收益时可以采用。Ultra 可以使用，也可以从 Sol Ultra 主 Agent 继承，但不保证子代理会继续委派。
-
-完整档位、旧模型回退与评测依据见 [模型选择规则](skills/subagent-manager/references/native-models.md)。
+思考档位、交接规则和中断恢复的具体步骤，见 [模型选择](skills/subagent-manager/references/native-models.md) 和 [任务交接](skills/subagent-manager/references/delegation.md)。
 
 ## 开始使用
 
-若你的 Codex 环境已具备子代理支持，可先从内置代理开始：
+用 Codex 内置的子代理就可以开始：
 
-1. 将 `skills/subagent-manager/` 整个文件夹复制到个人 `$HOME/.agents/skills/` 或项目根目录 `.agents/skills/`，选用一处即可。若已有同名 Skill，先对比你改动过的规则。
-2. 在任务中提及 `$subagent-manager`，或由 Codex 根据请求自动选用。如果未出现新 Skill，可重启 Codex 后再查。参考 [官方安装与构建说明](https://learn.chatgpt.com/docs/build-skills)。
-3. 先用一个范围清晰的任务试用，让 Codex 自行判断哪些部分适合委派：
+1. 将 `skills/subagent-manager/` 整个文件夹复制到 `$HOME/.agents/skills/` 或项目的 `.agents/skills/`，选一处即可。如果已有同名 Skill，先对比你改动过的规则再替换。
+2. 在任务中提及 `$subagent-manager`，或由 Codex 根据上下文自动选用。如果 Skill 没有出现，重启 Codex。参见 [官方 Skill 指南](https://learn.chatgpt.com/docs/build-skills)。
+3. 用一个任务试试，让主 Agent 自己决定委派什么：
 
 ```text
 使用 $subagent-manager 协助核查这份技术方案。
@@ -70,35 +50,27 @@
 主 Agent 继续负责核心方案分析与最终核对。
 ```
 
-## 按需接入的扩展
+## 可选扩展
 
-Skill 提供工作规则，不负责安装工具或取得模型权限。模型或接口不可用时，Codex 应说明限制，再选择能完成任务的路径。
-
-以下扩展按需要接入：
+Skill 提供的是工作规则，不负责安装工具或取得模型权限。模型或接口不可用时，Codex 会说明情况，并选择可行的路径。
 
 | 扩展 | 用途 | 环境要求 |
 |---|---|---|
-| [AGY / Gemini](skills/subagent-manager/references/google.md) | 分析视频与相关帧，将证据交回主 Agent | 已安装并登录 AGY CLI；附带包装脚本需要 PowerShell 7 |
-| [Grok](skills/subagent-manager/references/grok.md) | 检索原帖、社群讨论与补充网页资料 | 已安装并登录 Grok CLI，有适用的免费或订阅额度；本工作流仅使用已授权的免费或套餐自带额度 |
-| [Grok 额度规则](skills/subagent-manager/references/grok-budget.md) | 合并研究单元后查用量，单日消耗周额度超过30%仅提醒 | 默认每5个有效研究单元检查；快照账本需要 Python 3 |
-| [Windows 代理模块](extras/windows-proxy/README.md) | 为单次 CLI 调用设置进程级网络代理 | 直连网络无需使用；需要时填入本机客户端实际的 HTTP(S) 或 Mixed 端口 |
-
-使用 Grok 时请区分三类用量概念：
-
-- 交互界面中的 `/usage` 显示账户每周用量与重置时间。
-- `grok usage <SESSION_ID>` 显示特定会话消耗的 Token 与估算成本。
-- 附带的账本脚本保存账户快照并记录日消耗。主 Agent 可在查询后将快照数据传入账本保存，账本脚本本身不主动向外部查询账户。
+| [AGY / Gemini](skills/subagent-manager/references/google.md) | 分析视频与相关帧，将证据交回主 Agent | 已安装并登录 AGY CLI；包装脚本需要 PowerShell 7 |
+| [Grok](skills/subagent-manager/references/grok.md) | 检索原帖、社群讨论与网页资料 | 已安装并登录 Grok CLI，有免费或订阅额度；本工作流只使用已授权的自带额度 |
+| [Grok 用量规则](skills/subagent-manager/references/grok-budget.md) | 每组研究单元后查看用量；单日消耗超过周额度的 30% 时提醒 | 默认每 5 个有效研究单元检查一次；快照账本需要 Python 3 |
+| [Windows 代理模块](extras/windows-proxy/README.md) | 为单次 CLI 调用设置进程级代理 | 直连网络无需使用；需要时填入本机客户端的 HTTP(S) 或 Mixed 端口 |
 
 ## 适配与文档索引
 
-工作流给出了完整的默认组合，请根据实际可用的模型权限、工具环境、时区和订阅额度进行调整。公开基准评测仅作趋势参考，不能直接换算为具体套餐支持的任务数量。
+请根据你实际的权限、工具和时间安排，调整模型档位、思考强度和 Grok 额度。
 
 | 主题 | 对应文档 |
 |---|---|
-| 委派依据、交接内容与验收规则 | [SKILL.md](skills/subagent-manager/SKILL.md) |
-| 模型候选、思考档位与评测依据边界 | [模型选择](skills/subagent-manager/references/native-models.md) |
-| 专家咨询、任务执行、独立复核与嵌套委派 | [任务交接](skills/subagent-manager/references/delegation.md) |
+| 委派判断、交接与验收规则 | [SKILL.md](skills/subagent-manager/SKILL.md) |
+| 模型候选、思考档位与评测局限 | [模型选择](skills/subagent-manager/references/native-models.md) |
+| 专家咨询、任务执行、独立复核、嵌套委派与中断恢复 | [任务交接](skills/subagent-manager/references/delegation.md) |
 | 环境检查与默认值调整 | [自定义规则](docs/customization.md) |
 | 实践记录与规则演进背景 | [经验记录](skills/subagent-manager/references/experience.md) |
 
-本仓库可独立使用，也可搭配 [agent-search-booster](https://github.com/LiX-Works/agent-search-booster) 辅助多源检索。版本变动见 [Releases](https://github.com/LiX-Works/subagent-manager/releases)，基于 [MIT 许可证](LICENSE)开源。
+可以单独使用，也可以搭配 [agent-search-booster](https://github.com/LiX-Works/agent-search-booster) 做多源检索。版本更新见 [Releases](https://github.com/LiX-Works/subagent-manager/releases)，基于 [MIT 许可证](LICENSE) 开源。

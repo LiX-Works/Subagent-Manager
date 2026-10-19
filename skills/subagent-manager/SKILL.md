@@ -1,9 +1,15 @@
 ---
 name: subagent-manager
-description: Coordinate Codex subagents and external CLI specialists, choose models and context handoffs, assign file ownership, verify deliverables, and monitor Grok usage. Use for delegated research, material processing, coding, video analysis, and delegation-rule maintenance when coordination improves the task.
+description: Coordinate Codex subagents and external CLI specialists, choose models and context handoffs, assign file ownership, resume interrupted delegated work, verify deliverables, and monitor Grok usage. Use for delegated research, material processing, coding, video analysis, and delegation-rule maintenance when coordination improves the task.
 ---
 
 # Subagent Manager
+
+**Rule version: `2026-10-14.1`**
+
+When using this Skill in a new user turn, or resuming after interruption or context compaction, check only its current version header against the version last fully loaded in this conversation. A match with usable instructions needs no full reread; do not check before every tool call. If the version differs, is unknown, or needed rules are no longer available, read this file in full and the references needed for the active task to refresh Skill rules, then retain the loaded version in the working context. Preserve user decisions, evidence, completed work, and artifacts.
+
+Bump this marker when operative instructions in this file or its references change. This check applies once the Skill is selected; it does not activate an otherwise unselected Skill.
 
 The lead agent owns the user goal, coordination, and final delivery. Delegate when independent work, useful parallelism, specialized tools, or substantive review offers a practical benefit. Existing user authorization permits suitable delegation without asking each time; it does not expand the task or override runtime constraints. Later explicit user instructions supersede earlier tentative preferences.
 
@@ -40,6 +46,7 @@ Luna replaces Gemini's former routine text-processing role. Ordinary drafting, c
 - Allow delegates to question assumptions. If key context is missing, they should read assigned materials first, then tell the lead what is missing. The lead handles ordinary clarification; genuinely new authorization or consequential user choices remain with the user.
 - Assign files or modules before concurrent editing, and have the lead respect the same ownership. Independent outputs can share a project directory. Serialize changes to shared files; use a copy or worktree when isolation materially helps, not for every task. A task name or textual read-only request is not a filesystem sandbox. One live Origin session has one writing executor.
 - Reuse a delegate for useful related follow-ups. State new evidence, changed requirements, and results to preserve. Do not replay completed writes or rebuild artifacts merely because another message arrived. A completed turn and an accepted overall assignment are different.
+- On resumption, check whether the previous delegate can continue; reuse it where possible, otherwise preserve available records and artifacts and reassign only unfinished work. Follow [recovery](references/delegation.md#resume-interrupted-work) without requiring the interruption cause.
 - Native agents use capabilities actually exposed in their session. External CLIs have separate contexts and integrations; they do not automatically inherit Codex's Skills, MCPs, search tools, or credentials. Use an identified authorized workspace and suitable runtime limits, without mixing projects or bypassing permissions.
 - The lead checks delivered files, coverage, evidence, and relevant behavior proportionally to the task. A success flag, fluent answer, or stronger model name does not establish correctness. Preserve specialist results and uncertainty without repeating all their work or requiring a second reviewer every time. Resolve real disagreements with sources or focused checks.
 - Inspect uncertain outcomes before retrying. Narrow a task, add context, reuse the agent, or take over as useful. Avoid indefinite retries, duplicate names, and overlapping writes. Prefer an in-place update or complete file replacement over separate deletion and recreation calls.
