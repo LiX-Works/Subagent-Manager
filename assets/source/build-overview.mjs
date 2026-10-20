@@ -24,6 +24,7 @@ const C = {
 // ---------- icons ----------
 let uid = 0;
 const f1 = (n) => n.toFixed(1);
+const xmlText = (value) => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 function glyph(kind, cx, cy, set, color, tint) {
   if (kind === 'gemini') {
     const s = 58;
@@ -79,8 +80,8 @@ function card(c, set, optional = false) {
   // optional cards use tighter padding so the column stays compact
   const ix = optional ? 44 : 58, tx = optional ? 84 : 104;
   return `<g>${frame}${glyph(c.icon, c.x + ix, cy, set, col, tint)}
-    <text x="${c.x + tx}" y="${cy - 6}" font-size="27" font-weight="650" fill="${C.ink}">${c.title}</text>
-    <text x="${c.x + tx}" y="${cy + 29}" font-size="23" font-weight="500" fill="${C.subStrong}">${c.sub}</text></g>`;
+    <text x="${c.x + tx}" y="${cy - 6}" font-size="27" font-weight="650" fill="${C.ink}">${xmlText(c.title)}</text>
+    <text x="${c.x + tx}" y="${cy + 29}" font-size="23" font-weight="500" fill="${C.subStrong}">${xmlText(c.sub)}</text></g>`;
 }
 
 function lead(L, set) {
@@ -174,7 +175,7 @@ function svg(L, set, pair) {
   <rect x="20" y="740" width="${W - 40}" height="234" rx="28" fill="${C.bandBot}"/>
   ${pairFrame}
   ${links(L, pair)}
-  <g font-size="21" font-weight="700" letter-spacing="1.6" fill="${C.ink}">
+  <g font-size="22" font-weight="700" letter-spacing="1.6" fill="${C.ink}">
     <text x="${L.left[0].x + L.left[0].w / 2}" y="340" text-anchor="middle">OPTIONAL</text>
     <text x="${L.cx}" y="950" text-anchor="middle">IN PARALLEL</text></g>
   ${L.top.map((c) => card(c, set)).join('')}
