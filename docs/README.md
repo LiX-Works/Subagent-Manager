@@ -1,3 +1,5 @@
+<img src="assets/subagent-manager-overview.png" alt="The lead agent works with a Sol delegate through full-history forks, consults Astra for expert advice and independent review, sends focused briefs to parallel Luna Max workers, and can call optional Gemini and Grok specialists." width="1600">
+
 # subagent-manager
 
 **English** | [简体中文](README.zh-CN.md)
@@ -8,8 +10,6 @@ Subagent Manager is a Skill that lets Codex lead a team of AI subagents. As the 
 - **The right model for each job.** Sol takes on heavy execution, Astra gives expert consultation and independent review, and Luna Max takes routine work off the lead's plate. Gemini for video and Grok for X and web research plug in when you need them.
 - **Handoffs that carry real context.** Every delegate gets the goal, the materials, the files it owns, and how its result will be checked, with either the full project history or a focused brief.
 - **Every result is checked.** The lead verifies returned work against sources or tests before using it. Agreement between models does not count as proof.
-
-<img src="assets/subagent-manager-overview.png" alt="The lead agent works with a Sol delegate through full-history forks, consults Astra for expert advice and independent review, sends focused briefs to parallel Luna Max workers, and can call optional Gemini and Grok specialists." width="1600">
 
 Built mainly for Codex, from the workflow I use every day for research, writing, data work, and programming. This README is available in English and Chinese; the Skill and its reference guides are in English. The agent replies in your preferred language.
 
@@ -31,7 +31,7 @@ A strong lead such as 6.1 Sol Ultra handles a lot on its own; it delegates when 
 | **Gemini 3.8 Flash High** *(optional, via AGY CLI)* | Video understanding and related frame analysis, returning evidence and timestamps |
 | **Grok CLI** *(optional)* | X posts and threads, plus web research and verification; a reminder appears when daily use passes 30% of the weekly allowance |
 
-Effort levels, handoff rules, and recovery steps are in [model selection](skills/subagent-manager/references/native-models.md) and [task handoffs](skills/subagent-manager/references/delegation.md).
+Effort levels, handoff rules, and recovery steps are in [model selection](../skills/subagent-manager/references/native-models.md) and [task handoffs](../skills/subagent-manager/references/delegation.md).
 
 ## Getting started
 
@@ -57,10 +57,10 @@ The Skill supplies working rules; it does not install tools or grant model acces
 
 | Extension | Purpose | Requirements |
 |---|---|---|
-| [AGY / Gemini](skills/subagent-manager/references/google.md) | Analyze video and related frames, returning evidence to the lead | AGY CLI installed and signed in; PowerShell 7 for the wrapper script |
-| [Grok](skills/subagent-manager/references/grok.md) | Investigate original posts, discussions, and web sources | Grok CLI installed and signed in, with free or subscription usage; this workflow uses only included, authorized usage |
-| [Grok usage rules](skills/subagent-manager/references/grok-budget.md) | Check usage after grouped research units; remind above 30% daily use of the weekly allowance | Checks every 5 substantive research units by default; Python 3 for the snapshot ledger |
-| [Windows proxy module](extras/windows-proxy/README.md) | Set a process-level proxy for a single CLI call | Not needed on a direct connection; otherwise supply your client's HTTP(S) or Mixed port |
+| [AGY / Gemini](../skills/subagent-manager/references/google.md) | Analyze video and related frames, returning evidence to the lead | AGY CLI installed and signed in; PowerShell 7 for the wrapper script |
+| [Grok](../skills/subagent-manager/references/grok.md) | Investigate original posts, discussions, and web sources | Grok CLI installed and signed in, with free or subscription usage; this workflow uses only included, authorized usage |
+| [Grok usage rules](../skills/subagent-manager/references/grok-budget.md) | Check usage after grouped research units; remind above 30% daily use of the weekly allowance | Checks every 5 substantive research units by default; Python 3 for the snapshot ledger |
+| [Windows proxy module](windows-proxy/README.md) | Set a process-level proxy for a single CLI call | Not needed on a direct connection; otherwise supply your client's HTTP(S) or Mixed port |
 
 ## Adapting and documentation
 
@@ -68,10 +68,10 @@ Adjust model tiers, effort levels, and Grok budgets to your own access, tools, a
 
 | Topic | Reference |
 |---|---|
-| Delegation decisions, handoffs, and review rules | [SKILL.md](skills/subagent-manager/SKILL.md) |
-| Model candidates, effort levels, and benchmark limits | [Model selection](skills/subagent-manager/references/native-models.md) |
-| Consultation, execution, review, nesting, and recovery | [Task handoffs](skills/subagent-manager/references/delegation.md) |
-| Environment checks and configurable defaults | [Customization](docs/customization.md) |
-| Practical notes and the background of revisions | [Experience notes](skills/subagent-manager/references/experience.md) |
+| Delegation decisions, handoffs, and review rules | [SKILL.md](../skills/subagent-manager/SKILL.md) |
+| Model candidates, effort levels, and benchmark limits | [Model selection](../skills/subagent-manager/references/native-models.md) |
+| Consultation, execution, review, nesting, and recovery | [Task handoffs](../skills/subagent-manager/references/delegation.md) |
+| Environment checks and configurable defaults | [Customization](customization.md) |
+| Practical notes and the background of revisions | [Experience notes](../skills/subagent-manager/references/experience.md) |
 
-Use it on its own or with [agent-search-booster](https://github.com/LiX-Works/agent-search-booster) for multi-source research. See [Releases](https://github.com/LiX-Works/subagent-manager/releases) for updates. Released under the [MIT license](LICENSE).
+Use it on its own or with [agent-search-booster](https://github.com/LiX-Works/agent-search-booster) for multi-source research. See [Releases](https://github.com/LiX-Works/subagent-manager/releases) for updates. Released under the [MIT license](../LICENSE).

@@ -1,3 +1,5 @@
+<img src="assets/subagent-manager-overview.png" alt="主 Agent 通过完整历史分叉与 Sol 子代理协作，向 Astra 请求专家咨询和独立复核，以精简任务说明把常规工作并行交给 Luna Max，并可调用可选的 Gemini 和 Grok。" width="1600">
+
 # subagent-manager
 
 [English](README.md) | **简体中文**
@@ -8,8 +10,6 @@ Subagent Manager 是一个 Skill，让 Codex 带领一组 AI 子代理协同工�
 - **每项工作配合适的模型。** Sol 承担繁重的执行，Astra 负责专家咨询和独立复核，Luna Max 承担常规工作；需要时还可以接入 Gemini 分析视频、Grok 调研 X 和网页。
 - **交接带着真正的上下文。** 每个子代理都会拿到目标、资料、负责的文件和验收方式，并按任务需要继承完整的项目历史，或拿到一份精简的任务说明。
 - **每份成果都经过核对。** 主 Agent 根据原始资料或测试核对交回的成果后才会使用；多个模型结论一致，不算证据。
-
-<img src="assets/subagent-manager-overview.png" alt="主 Agent 通过完整历史分叉与 Sol 子代理协作，向 Astra 请求专家咨询和独立复核，以精简任务说明把常规工作并行交给 Luna Max，并可调用可选的 Gemini 和 Grok。" width="1600">
 
 本项目主要面向 Codex，整理自我日常做研究、写作、数据处理和编程时使用的工作流。首页提供中英文版本；Skill 和详细参考文档使用英文，Agent 仍按你的语言偏好回复。
 
@@ -31,7 +31,7 @@ Subagent Manager 是一个 Skill，让 Codex 带领一组 AI 子代理协同工�
 | **Gemini 3.8 Flash High** *(可选，通过 AGY CLI)* | 视频理解与相关帧分析，交回证据和时间位置 |
 | **Grok CLI** *(可选)* | X 原帖与讨论串，以及网页调研与核验；单日消耗超过周额度的 30% 时提醒 |
 
-思考档位、交接规则和中断恢复的具体步骤，见 [模型选择](skills/subagent-manager/references/native-models.md) 和 [任务交接](skills/subagent-manager/references/delegation.md)。
+思考档位、交接规则和中断恢复的具体步骤，见 [模型选择](../skills/subagent-manager/references/native-models.md) 和 [任务交接](../skills/subagent-manager/references/delegation.md)。
 
 ## 开始使用
 
@@ -56,10 +56,10 @@ Skill 提供的是工作规则，不负责安装工具或取得模型权限。�
 
 | 扩展 | 用途 | 环境要求 |
 |---|---|---|
-| [AGY / Gemini](skills/subagent-manager/references/google.md) | 分析视频与相关帧，将证据交回主 Agent | 已安装并登录 AGY CLI；包装脚本需要 PowerShell 7 |
-| [Grok](skills/subagent-manager/references/grok.md) | 检索原帖、社群讨论与网页资料 | 已安装并登录 Grok CLI，有免费或订阅额度；本工作流只使用已授权的自带额度 |
-| [Grok 用量规则](skills/subagent-manager/references/grok-budget.md) | 每组研究单元后查看用量；单日消耗超过周额度的 30% 时提醒 | 默认每 5 个有效研究单元检查一次；快照账本需要 Python 3 |
-| [Windows 代理模块](extras/windows-proxy/README.md) | 为单次 CLI 调用设置进程级代理 | 直连网络无需使用；需要时填入本机客户端的 HTTP(S) 或 Mixed 端口 |
+| [AGY / Gemini](../skills/subagent-manager/references/google.md) | 分析视频与相关帧，将证据交回主 Agent | 已安装并登录 AGY CLI；包装脚本需要 PowerShell 7 |
+| [Grok](../skills/subagent-manager/references/grok.md) | 检索原帖、社群讨论与网页资料 | 已安装并登录 Grok CLI，有免费或订阅额度；本工作流只使用已授权的自带额度 |
+| [Grok 用量规则](../skills/subagent-manager/references/grok-budget.md) | 每组研究单元后查看用量；单日消耗超过周额度的 30% 时提醒 | 默认每 5 个有效研究单元检查一次；快照账本需要 Python 3 |
+| [Windows 代理模块](windows-proxy/README.md) | 为单次 CLI 调用设置进程级代理 | 直连网络无需使用；需要时填入本机客户端的 HTTP(S) 或 Mixed 端口 |
 
 ## 适配与文档索引
 
@@ -67,10 +67,10 @@ Skill 提供的是工作规则，不负责安装工具或取得模型权限。�
 
 | 主题 | 对应文档 |
 |---|---|
-| 委派判断、交接与验收规则 | [SKILL.md](skills/subagent-manager/SKILL.md) |
-| 模型候选、思考档位与评测局限 | [模型选择](skills/subagent-manager/references/native-models.md) |
-| 专家咨询、任务执行、独立复核、嵌套委派与中断恢复 | [任务交接](skills/subagent-manager/references/delegation.md) |
-| 环境检查与默认值调整 | [自定义规则](docs/customization.md) |
-| 实践记录与规则演进背景 | [经验记录](skills/subagent-manager/references/experience.md) |
+| 委派判断、交接与验收规则 | [SKILL.md](../skills/subagent-manager/SKILL.md) |
+| 模型候选、思考档位与评测局限 | [模型选择](../skills/subagent-manager/references/native-models.md) |
+| 专家咨询、任务执行、独立复核、嵌套委派与中断恢复 | [任务交接](../skills/subagent-manager/references/delegation.md) |
+| 环境检查与默认值调整 | [自定义规则](customization.md) |
+| 实践记录与规则演进背景 | [经验记录](../skills/subagent-manager/references/experience.md) |
 
-可以单独使用，也可以搭配 [agent-search-booster](https://github.com/LiX-Works/agent-search-booster) 做多源检索。版本更新见 [Releases](https://github.com/LiX-Works/subagent-manager/releases)，基于 [MIT 许可证](LICENSE) 开源。
+可以单独使用，也可以搭配 [agent-search-booster](https://github.com/LiX-Works/agent-search-booster) 做多源检索。版本更新见 [Releases](https://github.com/LiX-Works/subagent-manager/releases)，基于 [MIT 许可证](../LICENSE) 开源。

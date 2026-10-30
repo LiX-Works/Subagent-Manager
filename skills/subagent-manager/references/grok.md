@@ -36,4 +36,4 @@ Successful web search does not prove X search works. A completed process does no
 
 ## References
 
-Consult the [CLI reference](https://docs.x.ai/build/cli/reference), [changelog](https://x.ai/build/changelog), and [usage FAQ](https://docs.x.ai/grok/faq) when current behavior matters. Optional process-level proxy examples are in [Windows proxy support](../../../extras/windows-proxy/README.md); no fixed proxy, account, or login configuration is bundled.
+Consult the [CLI reference](https://docs.x.ai/build/cli/reference), [changelog](https://x.ai/build/changelog), and [usage FAQ](https://docs.x.ai/grok/faq) when current behavior matters. Optional process-level proxy examples are in [Windows proxy support](../../../docs/windows-proxy/README.md); no fixed proxy, account, or login configuration is bundled.

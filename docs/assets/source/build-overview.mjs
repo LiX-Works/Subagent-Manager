@@ -1,4 +1,4 @@
-// Source for assets/subagent-manager-overview.png.
+// Source for docs/assets/subagent-manager-overview.png.
 // Writes subagent-manager-overview.svg next to this file; render it to PNG at 2x
 // (3200 x 2000), e.g. with headless Chrome or Edge. See README.md in this folder.
 // joinB (used in the README): lead and Sol cards share one dark palette, amber fork/result arrows.

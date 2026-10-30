@@ -17,7 +17,7 @@ A successful connection only proves that a port is listening. It does not prove 
 From the repository root, inspect the invocation with `-DryRun` before executing an authorized command:
 
 ```powershell
-& './extras/windows-proxy/Invoke-CliWithProxy.ps1' `
+& './docs/windows-proxy/Invoke-CliWithProxy.ps1' `
   -Executable 'grok' -ProxyUri 'http://127.0.0.1:PORT' `
   -CliArgs @('--version') -DryRun
 ```
