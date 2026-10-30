@@ -11,7 +11,7 @@ Subagent Manager is a Skill that lets Codex lead a team of AI subagents. As the 
 - **Handoffs that carry real context.** Every delegate gets the goal, the materials, the files it owns, and how its result will be checked, with either the full project history or a focused brief.
 - **Every result is checked.** The lead verifies returned work against sources or tests before using it. Agreement between models does not count as proof.
 
-Built mainly for Codex, from the workflow I use every day for research, writing, data work, and programming. This README is available in English and Chinese; the Skill and its reference guides are in English. The agent replies in your preferred language.
+Built mainly for Codex, from the workflow that underpins my daily work. This README is available in English and Chinese; the Skill and its reference guides are in English. The agent replies in your preferred language.
 
 ## What's new
 
